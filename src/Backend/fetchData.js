@@ -49,3 +49,20 @@ export async function getUserCountry() {
         throw error;
     }
 }
+
+export async function fetchCoordfromName(value) {
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(value)}&format=json`;
+
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        return data.map((item) => ({
+         name: item.display_name,
+         lat: item.lat,
+         lon: item.lon,
+        }));
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}

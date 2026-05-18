@@ -1,47 +1,55 @@
 import { useState, useEffect, useMemo } from "react"
-import { getUserCountry } from "../Backend/fetchData.js"
 import { debounce } from "../Backend/debounce.js"
-import { fetchCoordfromName } from "../Backend/fetchData";
+import { fetchLocationMatches, fetchLocationName, getUserCoord, fetchWeatherData } from "../Backend/fetchData";
 
 
 function App() {
-const [country, setCountry] = useState("loading...");
-const [city, setCity] = useState("loading...");
-const [text, setText] = useState("");
-const [countryList, setCountryList] = useState([]);
-
-
-useEffect(() => {
-    async function getLocalCountry() {
-        const data = await getUserCountry();
-        setCountry(data.country);
-        setCity(data.city);
-    }
-
-    getLocalCountry();
-}, []);
+const [coord, setCoord] = useState({});
+const [locationName, setLocationName] = useState({
+    country: "loading...",
+    city: "loading...",
+});
+const [weatherData, setWeatherData] = useState(null);
+const [locationList, setLocationList] = useState([]);
+const [searchText, setSerachText] = useState("");
 
 const handleDebouncedChange = useMemo(() => {
     return debounce(async (value) => {
-        const data = await fetchCoordfromName(value);
-        setCountryList(data);
+        const matches = await fetchLocationMatches(value);
+        setLocationList(matches);
     }, 300);
   }, []);
+
+async function initData() {
+    const c = await getUserCoord();
+    setCoord(c);
+    
+    const data = await fetchLocationName(c);
+    setLocationName(data);
+    fetchData(c);
+}
+
+async function fetchData(c) {
+   const hourlyData = await fetchWeatherData(c, "hourly", ["temperature_2m", "weather_code"]);
+}
+
+useEffect(() => {
+    initData();
+}, []);
 
 return (
       <div>
         <nav>
             <input 
-                value={text}   
+                value={searchText}   
                 onChange={(e) => {
                     const value = e.target.value;
-                    setText(value);
+                    setSerachText(value);
                     handleDebouncedChange(value);
                 }}  
                 placeholder="Type Country or City..."
             />
-            {/* Todo: Fix this to proper elements */}
-            {countryList.map(({name, lat, lon}) =>
+            {locationList.map(({name, lat, lon}) =>
                 (
                 <div key={`${lat}-${lon}`}>
                  <p>{name}</p>
@@ -52,11 +60,11 @@ return (
             )}
         </nav>
         <div>
-            <h1>{country}</h1> 
-            <h2>{city}</h2>
-            <div></div>
-            <div></div>
-            <div></div>
+            <h1>{locationName.country}</h1> 
+            <h2>{locationName.city}</h2>
+            <div>
+                <p></p>
+            </div>
         </div>
       </div>
     );

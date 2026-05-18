@@ -1,5 +1,5 @@
 //* gets user latitude and longitude position
-function getUserLocation() {
+export function getUserCoord() {
   return new Promise((resolve, reject) => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -15,34 +15,18 @@ function getUserLocation() {
   });
 }
 
-// uses user location to fetch get the correct api URL
-async function getApiUrl() {
-  try {
-    const coord = await getUserLocation();
-
-    const apiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${coord.lat}&longitude=${coord.lon}`;
-
-    return apiUrl;
-  } catch (error) {
-    console.log(error);
-    throw error;
-  }
-}
 
 //returns object with country and city
-export async function getUserCountry() {
-    try {
-        const coord = await getUserLocation();
-        
+export async function fetchLocationName(coord) {
+    try { 
         const getCountryApiUrl = `https://nominatim.openstreetmap.org/reverse?lat=${coord.lat}&lon=${coord.lon}&format=json`;
 
         const response = await fetch(getCountryApiUrl);
-
         const data = await response.json();
 
         return {
-            country: data.address.country,
-            city: data.address.city,
+            country: data["address"]["country"],
+            city: data["address"]["city"],
         }
     } catch (error) {
         console.log(error);
@@ -50,7 +34,7 @@ export async function getUserCountry() {
     }
 }
 
-export async function fetchCoordfromName(value) {
+export async function fetchLocationMatches(value) {
     const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(value)}&format=json`;
 
     try {
@@ -61,6 +45,22 @@ export async function fetchCoordfromName(value) {
          lat: item.lat,
          lon: item.lon,
         }));
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
+export async function fetchWeatherData(coord, timeFrame, variable) {
+    const variables = Array.isArray(variable) ? variable : [variable];
+
+    const apiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${coord.lat}&longitude=${coord.lon}&${timeFrame}=,${variables.join(",")}`
+
+    try {
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+        
+        return data[timeFrame];
     } catch (error) {
         console.log(error);
         throw error;

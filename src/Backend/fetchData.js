@@ -54,7 +54,7 @@ export async function fetchLocationMatches(value) {
 export async function fetchWeatherData(coord, timeFrame, variable) {
     const variables = Array.isArray(variable) ? variable : [variable];
 
-    const apiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${coord.lat}&longitude=${coord.lon}&${timeFrame}=,${variables.join(",")}`
+    const apiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${coord.lat}&longitude=${coord.lon}&${timeFrame}=${variables.join(",")}`
 
     try {
         const response = await fetch(apiUrl);

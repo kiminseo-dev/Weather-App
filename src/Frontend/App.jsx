@@ -1,73 +1,142 @@
-import { useState, useEffect, useMemo } from "react"
-import { debounce } from "../Backend/debounce.js"
-import { fetchLocationMatches, fetchLocationName, getUserCoord, fetchWeatherData } from "../Backend/fetchData";
-
+import { useState, useEffect, useMemo } from "react";
+import { debounce } from "../Backend/debounce.js";
+import {
+  fetchLocationMatches,
+  fetchLocationName,
+  getUserCoord,
+  fetchWeatherData,
+} from "../Backend/fetchData";
 
 function App() {
-const [coord, setCoord] = useState({});
-const [locationName, setLocationName] = useState({
+  const [coord, setCoord] = useState({});
+  const [locationName, setLocationName] = useState({
     country: "loading...",
     city: "loading...",
-});
-const [weatherData, setWeatherData] = useState(null);
-const [locationList, setLocationList] = useState([]);
-const [searchText, setSerachText] = useState("");
+  });
+  const [weatherData, setWeatherData] = useState({});
+  const [locationList, setLocationList] = useState([]);
+  const [searchText, setSerachText] = useState("");
 
-const handleDebouncedChange = useMemo(() => {
+  const handleDebouncedChange = useMemo(() => {
     return debounce(async (value) => {
-        const matches = await fetchLocationMatches(value);
-        setLocationList(matches);
+      const matches = await fetchLocationMatches(value);
+      setLocationList(matches);
     }, 300);
   }, []);
 
-async function initData() {
+  async function initData() {
     const c = await getUserCoord();
     setCoord(c);
-    
+
     const data = await fetchLocationName(c);
     setLocationName(data);
     fetchData(c);
-}
+  }
 
-async function fetchData(c) {
-   const hourlyData = await fetchWeatherData(c, "hourly", ["temperature_2m", "weather_code"]);
-}
+  async function fetchData(c) {
+    const currentData = await fetchWeatherData(c, "current", [
+      "weather_code",
+      "temperature_2m",
+    ]);
 
-useEffect(() => {
+    const minutelyData = await fetchWeatherData(c, "minutely_15", []);
+
+    const hourlyData = await fetchWeatherData(c, "hourly", [
+      "temperature_2m",
+      "weather_code",
+    ]);
+
+    const dailyData = await fetchWeatherData(c, "daily", [
+      "temperature_2m_max",
+      "temperature_2m_min",
+      "weather_code",
+    ]);
+
+    setWeatherData({
+      current: currentData,
+      minutely: minutelyData,
+      hourly: hourlyData,
+      daily: dailyData,
+    });
+  }
+
+  useEffect(() => {
     initData();
-}, []);
+  }, []);
 
-return (
-      <div>
-        <nav>
-            <input 
-                value={searchText}   
-                onChange={(e) => {
-                    const value = e.target.value;
-                    setSerachText(value);
-                    handleDebouncedChange(value);
-                }}  
-                placeholder="Type Country or City..."
-            />
-            {locationList.map(({name, lat, lon}) =>
-                (
-                <div key={`${lat}-${lon}`}>
-                 <p>{name}</p>
-                 <p>{lat}</p>
-                 <p>{lon}</p>
+  return (
+    <div>
+      <nav>
+        <input
+          value={searchText}
+          onChange={(e) => {
+            const value = e.target.value;
+            setSerachText(value);
+            handleDebouncedChange(value);
+          }}
+          placeholder="Type Country or City..."
+        />
+        {locationList.map(({ name, lat, lon }, index) => (
+          <div key={`${lat}-${lon}-${index}`}>
+            <p>{name}</p>
+            <p>{lat}</p>
+            <p>{lon}</p>
+          </div>
+        ))}
+      </nav>
+      <div id="Everything">
+        <h2>{locationName.country}</h2>
+        <h3>{locationName.city}</h3>
+
+        <div id="main">
+          <div id="current">
+            <p>{weatherData.current?.["weather_code"] ?? "loading..."}</p>
+            <h1>{weatherData.current?.["temperature_2m"] ?? "loading..."}</h1>
+            <p>{weatherData.daily?.["temperature_2m_max"] ?? "loading..."}</p>
+            <p>{weatherData.daily?.["temperature_2m_min"] ?? "loading..."}</p>
+          </div>
+
+          <div id="info">
+            <h3>Weather</h3>
+            <p>Time</p>
+            <p>weather code</p>
+          </div>
+
+          <div>
+            <h3>Today</h3>
+            {weatherData.hourly ? (
+              weatherData.hourly.time.map((hour, index) => (
+                <div key={`${hour}-${index}`}>
+                  <p>{hour}</p>
+                  <p>{weatherData.hourly["weather_code"][index]}</p>
+                  <p>{weatherData.hourly["temperature_2m"][index]}</p>
                 </div>
-                )
+              ))
+            ) : (
+              <p>loading...</p>
             )}
-        </nav>
-        <div>
-            <h1>{locationName.country}</h1> 
-            <h2>{locationName.city}</h2>
-            <div>
-                <p></p>
-            </div>
+          </div>
         </div>
+
+        <div id="sevendayPrediction">
+          <h3>7 day forecast</h3>
+          {weatherData.daily ? (
+            weatherData.daily.time.map((day, index) => (
+              <div key={`${day}-${index}`}>
+                <p>{day}</p>
+                <p>{weatherData.daily["weather_code"][index]}</p>
+                <p>{weatherData.daily["temperature_2m_max"]}</p>
+                <p>{weatherData.daily["temperature_2m_min"]}</p>
+              </div>
+            ))
+          ) : (
+            <p>Loading</p>
+          )}
+        </div>
+        <div id="moreInfo"></div>
       </div>
-    );
+    </div>
+  );
 }
 
-export default App
+export default App;

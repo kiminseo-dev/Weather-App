@@ -15,54 +15,53 @@ export function getUserCoord() {
   });
 }
 
-
 //returns object with country and city
 export async function fetchLocationName(coord) {
-    try { 
-        const getCountryApiUrl = `https://nominatim.openstreetmap.org/reverse?lat=${coord.lat}&lon=${coord.lon}&format=json`;
+  try {
+    const getCountryApiUrl = `https://nominatim.openstreetmap.org/reverse?lat=${coord.lat}&lon=${coord.lon}&format=json`;
 
-        const response = await fetch(getCountryApiUrl);
-        const data = await response.json();
+    const response = await fetch(getCountryApiUrl);
+    const data = await response.json();
 
-        return {
-            country: data["address"]["country"],
-            city: data["address"]["city"],
-        }
-    } catch (error) {
-        console.log(error);
-        throw error;
-    }
+    return {
+      country: data["address"]["country"],
+      city: data["address"]["city"],
+    };
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
 }
 
 export async function fetchLocationMatches(value) {
-    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(value)}&format=json`;
+  const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(value)}&format=json`;
 
-    try {
-        const response = await fetch(url);
-        const data = await response.json();
-        return data.map((item) => ({
-         name: item.display_name,
-         lat: item.lat,
-         lon: item.lon,
-        }));
-    } catch (error) {
-        console.log(error);
-        throw error;
-    }
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+    return data.map((item) => ({
+      name: item.display_name,
+      lat: item.lat,
+      lon: item.lon,
+    }));
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
 }
 
 export async function fetchWeatherData(coord, timeFrame, variable) {
-    const variables = Array.isArray(variable) ? variable : [variable];
+  const variables = Array.isArray(variable) ? variable : [variable];
 
-    const apiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${coord.lat}&longitude=${coord.lon}&${timeFrame}=${variables.join(",")}`
+  const apiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${coord.lat}&longitude=${coord.lon}&${timeFrame}=${variables.join(",")}&timezone=auto`;
 
-    try {
-        const response = await fetch(apiUrl);
-        const data = await response.json();
-        
-        return data[timeFrame];
-    } catch (error) {
-        console.log(error);
-        throw error;
-    }
+  try {
+    const response = await fetch(apiUrl);
+    const data = await response.json();
+
+    return data[timeFrame];
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
 }

@@ -66,7 +66,32 @@ export async function fetchWeatherData(coord, timeFrame, variable) {
   }
 }
 
-export function getDate() {
-  const date = new Date().toISOString().split("T")[0];
-  return date;
+export async function getDate({ lat, lon }) {
+  const response = await fetch(
+    `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&timezone=auto`,
+  );
+
+  const data = await response.json();
+
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: data.timezone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+}
+
+export async function getTime({ lat, lon }) {
+  const response = await fetch(
+    `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&timezone=auto`,
+  );
+
+  const data = await response.json();
+
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: data.timezone,
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(new Date());
 }

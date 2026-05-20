@@ -6,6 +6,7 @@ import {
   getUserCoord,
   fetchWeatherData,
   getDate,
+  getTime,
 } from "../Backend/fetchData";
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
   });
   const [weatherData, setWeatherData] = useState({});
   const [date, setDate] = useState(null);
+  const [time, setTime] = useState(null);
   const [locationList, setLocationList] = useState([]);
   const [searchText, setSerachText] = useState("");
 
@@ -33,9 +35,11 @@ function App() {
     const data = await fetchLocationName(c);
     setLocationName(data);
 
-    const today = getDate();
+    const today = await getDate(c);
     setDate(today);
 
+    const time = await getTime(c);
+    setTime(time);
     fetchData(c);
   }
 
@@ -83,7 +87,24 @@ function App() {
           placeholder="Type Country or City..."
         />
         {locationList.map(({ name, lat, lon }, index) => (
-          <div key={`${lat}-${lon}-${index}`}>
+          <div
+            key={`${lat}-${lon}-${index}`}
+            onClick={async () => {
+              fetchData({ lat, lon });
+              setCoord({ lat, lon });
+              setLocationName({
+                country: name,
+                city: "",
+              });
+              const newDate = await getDate({ lat, lon });
+              setDate(newDate);
+
+              const newTime = await getTime({ lat, lon });
+              setTime(newTime);
+              console.log("country updated");
+            }}
+            className="border"
+          >
             <p>{name}</p>
             <p>{lat}</p>
             <p>{lon}</p>
@@ -98,26 +119,50 @@ function App() {
           <div id="current">
             <p>{weatherData.current?.["weather_code"] ?? "loading..."}</p>
             <h1>{weatherData.current?.["temperature_2m"] ?? "loading..."}</h1>
-            <p>{weatherData.daily?.["temperature_2m_max"] ?? "loading..."}</p>
-            <p>{weatherData.daily?.["temperature_2m_min"] ?? "loading..."}</p>
+            {weatherData.daily ? (
+              weatherData.daily.time
+                .map((date, index) => ({
+                  date: weatherData.daily["time"][index],
+                  max: weatherData.daily["temperature_2m_max"][index],
+                  min: weatherData.daily["temperature_2m_min"][index],
+                }))
+                .filter((today) => today.date === date)
+                .map((today) => (
+                  <div key={`${today.date}-${today.max}-${today.min}`}>
+                    <p>{today.date}</p>
+                    <p>{today.max}</p>
+                    <p>{today.min}</p>
+                  </div>
+                ))
+            ) : (
+              <p>Loading...</p>
+            )}
           </div>
 
           <div id="info">
             <h3>Weather</h3>
-            <p>date</p>
+            <p>{date}</p>
+            <p>{time}</p>
             <p>weather code</p>
           </div>
 
           <div>
-            <h3><strong>Today</strong></h3>
+            <h3>
+              <strong>Today</strong>
+            </h3>
             {weatherData.hourly ? (
               weatherData.hourly.time
-                .filter((time) => time.startsWith(date))
-                .map((hour, index) => (
-                  <div key={`${hour}-${index}`} className="border">
-                    <p>{hour}</p>
-                    <p>{weatherData.hourly["weather_code"][index]}</p>
-                    <p>{weatherData.hourly["temperature_2m"][index]}</p>
+                .map((time, index) => ({
+                  time: weatherData.hourly["time"][index],
+                  weatherCode: weatherData.hourly["weather_code"][index],
+                  temperature: weatherData.hourly["temperature_2m"][index],
+                }))
+                .filter((hour) => hour.time.startsWith(date))
+                .map((hour) => (
+                  <div key={hour.time} className="border">
+                    <p>{hour.time}</p>
+                    <p>{hour.weatherCode}</p>
+                    <p>{hour.temperature}</p>
                   </div>
                 ))
             ) : (
@@ -127,12 +172,19 @@ function App() {
         </div>
 
         <div id="sevendayPrediction">
-          <h3><strong>7 day forecast</strong></h3>
+          <h3>
+            <strong>7 day forecast</strong>
+          </h3>
           {weatherData.daily ? (
             weatherData.daily.time.map((day, index) => (
-              <div key={`${day}-${index}`} className="border" onClick={() => {
-              
-              }}>
+              <div
+                key={`${day}-${index}`}
+                className="border"
+                onClick={() => {
+                  setDate(day);
+                  console.log("hourly forecast updated");
+                }}
+              >
                 <p>{day}</p>
                 <p>{weatherData.daily["weather_code"][index]}</p>
                 <p>{weatherData.daily["temperature_2m_max"][index]}</p>

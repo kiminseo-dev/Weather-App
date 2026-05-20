@@ -65,3 +65,8 @@ export async function fetchWeatherData(coord, timeFrame, variable) {
     throw error;
   }
 }
+
+export function getDate() {
+  const date = new Date().toISOString().split("T")[0];
+  return date;
+}

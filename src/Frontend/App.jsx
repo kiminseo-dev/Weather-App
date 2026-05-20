@@ -5,6 +5,7 @@ import {
   fetchLocationName,
   getUserCoord,
   fetchWeatherData,
+  getDate,
 } from "../Backend/fetchData";
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
     city: "loading...",
   });
   const [weatherData, setWeatherData] = useState({});
+  const [date, setDate] = useState(null);
   const [locationList, setLocationList] = useState([]);
   const [searchText, setSerachText] = useState("");
 
@@ -30,6 +32,10 @@ function App() {
 
     const data = await fetchLocationName(c);
     setLocationName(data);
+
+    const today = getDate();
+    setDate(today);
+
     fetchData(c);
   }
 
@@ -98,20 +104,22 @@ function App() {
 
           <div id="info">
             <h3>Weather</h3>
-            <p>Time</p>
+            <p>date</p>
             <p>weather code</p>
           </div>
 
           <div>
-            <h3>Today</h3>
+            <h3><strong>Today</strong></h3>
             {weatherData.hourly ? (
-              weatherData.hourly.time.map((hour, index) => (
-                <div key={`${hour}-${index}`}>
-                  <p>{hour}</p>
-                  <p>{weatherData.hourly["weather_code"][index]}</p>
-                  <p>{weatherData.hourly["temperature_2m"][index]}</p>
-                </div>
-              ))
+              weatherData.hourly.time
+                .filter((time) => time.startsWith(date))
+                .map((hour, index) => (
+                  <div key={`${hour}-${index}`} className="border">
+                    <p>{hour}</p>
+                    <p>{weatherData.hourly["weather_code"][index]}</p>
+                    <p>{weatherData.hourly["temperature_2m"][index]}</p>
+                  </div>
+                ))
             ) : (
               <p>loading...</p>
             )}
@@ -119,14 +127,16 @@ function App() {
         </div>
 
         <div id="sevendayPrediction">
-          <h3>7 day forecast</h3>
+          <h3><strong>7 day forecast</strong></h3>
           {weatherData.daily ? (
             weatherData.daily.time.map((day, index) => (
-              <div key={`${day}-${index}`}>
+              <div key={`${day}-${index}`} className="border" onClick={() => {
+              
+              }}>
                 <p>{day}</p>
                 <p>{weatherData.daily["weather_code"][index]}</p>
-                <p>{weatherData.daily["temperature_2m_max"]}</p>
-                <p>{weatherData.daily["temperature_2m_min"]}</p>
+                <p>{weatherData.daily["temperature_2m_max"][index]}</p>
+                <p>{weatherData.daily["temperature_2m_min"][index]}</p>
               </div>
             ))
           ) : (

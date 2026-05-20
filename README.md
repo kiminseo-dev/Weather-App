@@ -37,3 +37,5 @@ country & city timeframe + dataset
 
 coordinate to country and city api
 `https://nominatim.openstreetmap.org/reverse?lat=${coord.lat}&lon=${coord.lon}&format=json`
+
+https://open-meteo.com/en/docs 

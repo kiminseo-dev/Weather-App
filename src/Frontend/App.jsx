@@ -110,9 +110,6 @@ function App() {
             }}
             className="border"
           >
-            <p>{name}</p>
-            <p>{lat}</p>
-            <p>{lon}</p>
           </div>
         ))}
       </nav>
@@ -134,7 +131,6 @@ function App() {
                 .filter((today) => today.date === date)
                 .map((today) => (
                   <div key={`${today.date}-${today.max}-${today.min}`}>
-                    <p>{today.date}</p>
                     <p>{today.max}</p>
                     <p>{today.min}</p>
                   </div>
@@ -148,7 +144,7 @@ function App() {
             <h3>Weather</h3>
             <p>{date}</p>
             <p>{time}</p>
-            <p>weather code</p>
+            <p>{weatherData.current?.["weather_code"] ?? "loading..."} as text</p>
           </div>
 
           <div>

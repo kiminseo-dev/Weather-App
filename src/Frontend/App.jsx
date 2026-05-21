@@ -19,10 +19,15 @@ function App() {
   const [date, setDate] = useState(null);
   const [time, setTime] = useState(null);
   const [locationList, setLocationList] = useState([]);
-  const [searchText, setSerachText] = useState("");
+  const [searchText, setSearchText] = useState("");
 
   const handleDebouncedChange = useMemo(() => {
     return debounce(async (value) => {
+      if (!value.trim()) {
+        setLocationList([]);
+        return;
+      }
+
       const matches = await fetchLocationMatches(value);
       setLocationList(matches);
     }, 300);
@@ -40,7 +45,7 @@ function App() {
 
     const time = await getTime(c);
     setTime(time);
-    fetchData(c);
+    await fetchData(c);
   }
 
   async function fetchData(c) {
@@ -81,7 +86,7 @@ function App() {
           value={searchText}
           onChange={(e) => {
             const value = e.target.value;
-            setSerachText(value);
+            setSearchText(value);
             handleDebouncedChange(value);
           }}
           placeholder="Type Country or City..."

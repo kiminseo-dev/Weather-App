@@ -66,7 +66,7 @@ function App() {
       "temperature_2m_min",
       "weather_code",
     ]);
-
+    
     setWeatherData({
       current: currentData,
       minutely: minutelyData,

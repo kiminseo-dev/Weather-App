@@ -122,26 +122,34 @@ function App() {
 
         <div id="main">
           <div id="current">
-            <img
-              src={`./src/assets/WeatherCode/weatherCode${weatherData.current?.["weather_code"]}.png`}
-            />
-            <h1>{weatherData.current?.["temperature_2m"] ?? "loading..."}</h1>
-            {weatherData.daily ? (
-              weatherData.daily.time
-                .map((date, index) => ({
-                  date: weatherData.daily["time"][index],
-                  max: weatherData.daily["temperature_2m_max"][index],
-                  min: weatherData.daily["temperature_2m_min"][index],
-                }))
-                .filter((today) => today.date === date)
-                .map((today) => (
-                  <div key={`${today.date}-${today.max}-${today.min}`}>
-                    <p>{today.max}</p>
-                    <p>{today.min}</p>
-                  </div>
-                ))
+            {weatherData.current?.["time"].split("T")[0] === date ? (
+              <div>
+                <img
+                  src={`./src/assets/WeatherCode/weatherCode${weatherData.current?.["weather_code"]}.png`}
+                />
+                <h1>
+                  {weatherData.current?.["temperature_2m"] ?? "loading..."}
+                </h1>
+                {weatherData.daily ? (
+                  weatherData.daily.time
+                    .map((date, index) => ({
+                      date: weatherData.daily["time"][index],
+                      max: weatherData.daily["temperature_2m_max"][index],
+                      min: weatherData.daily["temperature_2m_min"][index],
+                    }))
+                    .filter((today) => today.date === date)
+                    .map((today) => (
+                      <div key={`${today.date}-${today.max}-${today.min}`}>
+                        <p>{today.max}</p>
+                        <p>{today.min}</p>
+                      </div>
+                    ))
+                ) : (
+                  <p>Loading...</p>
+                )}
+              </div>
             ) : (
-              <p>Loading...</p>
+              <h1>not today</h1>
             )}
           </div>
 
@@ -169,7 +177,9 @@ function App() {
                 .map((hour) => (
                   <div key={hour.time} className="border">
                     <p>{hour.time}</p>
-                    <img src={`./src/assets/WeatherCode/weatherCode${hour.weatherCode}.png`}/>
+                    <img
+                      src={`./src/assets/WeatherCode/weatherCode${hour.weatherCode}.png`}
+                    />
                     <p>{hour.temperature}</p>
                   </div>
                 ))
@@ -194,7 +204,9 @@ function App() {
                 }}
               >
                 <p>{day}</p>
-                <img src={`./src/assets/WeatherCode/weatherCode${weatherData.daily["weather_code"][index]}.png`} /> 
+                <img
+                  src={`./src/assets/WeatherCode/weatherCode${weatherData.daily["weather_code"][index]}.png`}
+                />
                 <p>{weatherData.daily["temperature_2m_max"][index]}</p>
                 <p>{weatherData.daily["temperature_2m_min"][index]}</p>
               </div>

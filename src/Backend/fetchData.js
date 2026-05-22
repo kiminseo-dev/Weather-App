@@ -95,3 +95,11 @@ export async function getTime({ lat, lon }) {
     hour12: false,
   }).format(new Date());
 }
+
+export function isToday(weatherData, date) {
+  return weatherData.current?.time.split("T")[0] === date;
+}
+
+export function getDayIndex(weatherData, date) {
+  return weatherData.daily?.time.indexOf(date);
+}

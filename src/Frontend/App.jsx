@@ -7,6 +7,8 @@ import {
   fetchWeatherData,
   getDate,
   getTime,
+  isToday,
+  getDayIndex,
 } from "../Backend/fetchData";
 
 function App() {
@@ -79,6 +81,9 @@ function App() {
     initData();
   }, []);
 
+  const today = isToday(weatherData, date);
+  const dayIndex = getDayIndex(weatherData, date);
+
   return (
     <div>
       <nav>
@@ -122,35 +127,22 @@ function App() {
 
         <div id="main">
           <div id="current">
-            {weatherData.current?.["time"].split("T")[0] === date ? (
-              <div>
-                <img
-                  src={`./src/assets/WeatherCode/weatherCode${weatherData.current?.["weather_code"]}.png`}
-                />
-                <h1>
-                  {weatherData.current?.["temperature_2m"] ?? "loading..."}
-                </h1>
-                {weatherData.daily ? (
-                  weatherData.daily.time
-                    .map((date, index) => ({
-                      date: weatherData.daily["time"][index],
-                      max: weatherData.daily["temperature_2m_max"][index],
-                      min: weatherData.daily["temperature_2m_min"][index],
-                    }))
-                    .filter((today) => today.date === date)
-                    .map((today) => (
-                      <div key={`${today.date}-${today.max}-${today.min}`}>
-                        <p>{today.max}</p>
-                        <p>{today.min}</p>
-                      </div>
-                    ))
-                ) : (
-                  <p>Loading...</p>
-                )}
-              </div>
-            ) : (
-              <h1>not today</h1>
-            )}
+            <img
+              src={
+                isToday
+                  ? `./src/assets/WeatherCode/weatherCode${weatherData.current?.["weather_code"]}.png`
+                  : `./src/assets/WeatherCode/weatherCode${weatherData.daily?.["weather_code"][dayIndex]}.png`
+              }
+            />
+            <h1>
+              {isToday
+                ? weatherData.current?.["temperature_2m"]
+                : weatherData.daily?.["temperature_2m_max"][dayIndex]}
+            </h1>
+            <div>
+              <p>{weatherData.daily?.temperature_2m_max[dayIndex]}</p>
+              <p>{weatherData.daily?.temperature_2m_min[dayIndex]}</p>
+            </div>
           </div>
 
           <div id="info">
@@ -158,7 +150,9 @@ function App() {
             <p>{date ?? "loading..."}</p>
             <p>{time ?? "loading..."}</p>
             <p>
-              {weatherData.current?.["weather_code"] ?? "loading..."} as text
+              {isToday
+                ? weatherData.current?.["temperature_2m"]
+                : weatherData.daily?.["temperature_2m_max"][dayIndex]} as text
             </p>
           </div>
 

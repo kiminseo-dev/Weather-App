@@ -70,34 +70,30 @@ export async function fetchWeatherData(coord, toFetch) {
   }
 }
 
-export async function getDate({ lat, lon }) {
+export async function getDateTime({ lat, lon }) {
   const response = await fetch(
-    `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&timezone=auto`,
+    `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&timezone=auto`
   );
 
   const data = await response.json();
 
-  return new Intl.DateTimeFormat("en-CA", {
-    timeZone: data.timezone,
+  const timeZone = data.timezone;
+
+  const date = new Intl.DateTimeFormat("en-CA", {
+    timeZone,
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
   }).format(new Date());
-}
 
-export async function getTime({ lat, lon }) {
-  const response = await fetch(
-    `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&timezone=auto`,
-  );
-
-  const data = await response.json();
-
-  return new Intl.DateTimeFormat("en-CA", {
-    timeZone: data.timezone,
+  const time = new Intl.DateTimeFormat("en-CA", {
+    timeZone,
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,
   }).format(new Date());
+
+  return { date, time };
 }
 
 export function isToday(weatherData, date) {

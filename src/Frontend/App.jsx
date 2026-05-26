@@ -5,8 +5,7 @@ import {
   fetchLocationName,
   getUserCoord,
   fetchWeatherData,
-  getDate,
-  getTime,
+  getDateTime,
   isToday,
   getDayIndex,
 } from "../Backend/fetchData";
@@ -42,11 +41,10 @@ function App() {
     const data = await fetchLocationName(c);
     setLocationName(data);
 
-    const today = await getDate(c);
-    setDate(today);
+    const dateTime = await getDateTime(c);
+    setDate(dateTime.date);
+    setTime(dateTime.time);
 
-    const time = await getTime(c);
-    setTime(time);
     await fetchData(c);
   }
 
@@ -57,12 +55,24 @@ function App() {
       daily: ["temperature_2m_max", "temperature_2m_min", "weather_code"],
     });
 
-   setWeatherData(fetchedWeatherData) 
+    setWeatherData(fetchedWeatherData);
   }
 
   useEffect(() => {
     initData();
   }, []);
+
+  useEffect(() => {
+    if (!coord?.lat || !coord?.lon) return;
+
+    const intervalId = setInterval(async () => {
+      const dateTime = await getDateTime(coord);
+      setDate(dateTime.date);
+      setTime(dateTime.time);
+    }, 60000);
+
+    return () => clearInterval(intervalId);
+  }, [coord]);
 
   const today = isToday(weatherData, date);
   const dayIndex = getDayIndex(weatherData, date);
@@ -134,7 +144,7 @@ function App() {
             <p>{time ?? "loading..."}</p>
             <p>
               {isToday
-                ? weatherData.current?.["temperature_2m"]
+                ? weatherData.current?.["weather_code"]
                 : weatherData.daily?.["temperature_2m_max"][dayIndex]}{" "}
               as text
             </p>

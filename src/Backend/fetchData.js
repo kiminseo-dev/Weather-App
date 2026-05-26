@@ -50,16 +50,20 @@ export async function fetchLocationMatches(value) {
   }
 }
 
-export async function fetchWeatherData(coord, timeFrame, variable) {
-  const variables = Array.isArray(variable) ? variable : [variable];
+export async function fetchWeatherData(coord, toFetch) {
+  const query = Object.entries(toFetch)
+  .map(([timeFrame, variables]) => {
+    return `${timeFrame}=${variables.join(",")}`;
+  })
+  .join("&");
 
-  const apiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${coord.lat}&longitude=${coord.lon}&${timeFrame}=${variables.join(",")}&timezone=auto`;
+  const apiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${coord.lat}&longitude=${coord.lon}&${query}&timezone=auto`;
 
   try {
     const response = await fetch(apiUrl);
     const data = await response.json();
 
-    return data[timeFrame];
+    return data;
   } catch (error) {
     console.log(error);
     throw error;

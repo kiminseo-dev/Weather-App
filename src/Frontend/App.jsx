@@ -51,30 +51,13 @@ function App() {
   }
 
   async function fetchData(c) {
-    const currentData = await fetchWeatherData(c, "current", [
-      "weather_code",
-      "temperature_2m",
-    ]);
-
-    const minutelyData = await fetchWeatherData(c, "minutely_15", []);
-
-    const hourlyData = await fetchWeatherData(c, "hourly", [
-      "temperature_2m",
-      "weather_code",
-    ]);
-
-    const dailyData = await fetchWeatherData(c, "daily", [
-      "temperature_2m_max",
-      "temperature_2m_min",
-      "weather_code",
-    ]);
-
-    setWeatherData({
-      current: currentData,
-      minutely: minutelyData,
-      hourly: hourlyData,
-      daily: dailyData,
+    const fetchedWeatherData = await fetchWeatherData(c, {
+      current: ["weather_code", "temperature_2m"],
+      hourly: ["temperature_2m", "weather_code"],
+      daily: ["temperature_2m_max", "temperature_2m_min", "weather_code"],
     });
+
+   setWeatherData(fetchedWeatherData) 
   }
 
   useEffect(() => {
@@ -152,7 +135,8 @@ function App() {
             <p>
               {isToday
                 ? weatherData.current?.["temperature_2m"]
-                : weatherData.daily?.["temperature_2m_max"][dayIndex]} as text
+                : weatherData.daily?.["temperature_2m_max"][dayIndex]}{" "}
+              as text
             </p>
           </div>
 

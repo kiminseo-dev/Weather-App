@@ -8,7 +8,9 @@ import {
   getDateTime,
   isToday,
   getDayIndex,
+  weatherCodeToText,
 } from "../Backend/fetchData";
+import { SkeletonImage } from "./util.jsx";
 
 function App() {
   const [coord, setCoord] = useState({});
@@ -21,6 +23,8 @@ function App() {
   const [time, setTime] = useState(null);
   const [locationList, setLocationList] = useState([]);
   const [searchText, setSearchText] = useState("");
+
+  const [iconLoaded, setIconLoaded] = useState(false);
 
   const handleDebouncedChange = useMemo(() => {
     return debounce(async (value) => {
@@ -115,39 +119,69 @@ function App() {
         ))}
       </nav>
       <div id="Everything">
-        <h2>{locationName.country ?? "loading..."}</h2>
-        <h3>{locationName.city ?? "loading..."}</h3>
+        {locationName.country ? (
+          <h2>{locationName.country}</h2>
+        ) : (
+          <div>loading...</div>
+        )}
+
+        {locationName.city ? (
+          <h3>{locationName.city}</h3>
+        ) : (
+          <div>loading...</div>
+        )}
 
         <div id="main">
           <div id="current">
-            <img
-              src={
-                isToday
-                  ? `./src/assets/WeatherCode/weatherCode${weatherData.current?.["weather_code"]}.png`
-                  : `./src/assets/WeatherCode/weatherCode${weatherData.daily?.["weather_code"][dayIndex]}.png`
-              }
-            />
-            <h1>
-              {isToday
-                ? weatherData.current?.["temperature_2m"]
-                : weatherData.daily?.["temperature_2m_max"][dayIndex]}
-            </h1>
-            <div>
-              <p>{weatherData.daily?.temperature_2m_max[dayIndex]}</p>
-              <p>{weatherData.daily?.temperature_2m_min[dayIndex]}</p>
-            </div>
+            {isToday ? (
+              <SkeletonImage
+                src={`./src/assets/WeatherCode/weatherCode${weatherData.current?.["weather_code"]}.png`}
+              />
+            ) : (
+              <SkeletonImage
+                src={`./src/assets/WeatherCode/weatherCode${weatherData.daily?.["weather_code"][dayIndex]}.png`}
+              />
+            )}
+
+            {weatherData.current?.["temperature_2m"] &&
+            weatherData.daily?.["temperature_2m_max"] ? (
+              <h1>
+                {isToday
+                  ? weatherData.current?.["temperature_2m"]
+                  : weatherData.daily?.["temperature_2m_max"][dayIndex]}
+              </h1>
+            ) : (
+              <div>loading...</div>
+            )}
+
+            {weatherData.daily?.temperature_2m_max &&
+            weatherData.daily?.temperature_2m_min ? (
+              <div>
+                <p>{weatherData.daily?.temperature_2m_max[dayIndex]}</p>
+                <p>{weatherData.daily?.temperature_2m_min[dayIndex]}</p>
+              </div>
+            ) : (
+              <div>loading...</div>
+            )}
           </div>
 
           <div id="info">
             <h3>Weather</h3>
-            <p>{date ?? "loading..."}</p>
-            <p>{time ?? "loading..."}</p>
-            <p>
-              {isToday
-                ? weatherData.current?.["weather_code"]
-                : weatherData.daily?.["temperature_2m_max"][dayIndex]}{" "}
-              as text
-            </p>
+            {date ? <p>{date ?? "loading..."}</p> : <div>loading...</div>}
+            {time ? <p>{time ?? "loading..."}</p> : <div>loading...</div>}
+
+            {weatherData.current?.["weather_code"] &&
+            weatherData.daily?.["temperature_2m_max"] ? (
+              <p>
+                {isToday
+                  ? weatherCodeToText(weatherData.current?.["weather_code"])
+                  : weatherCodeToText(
+                      weatherData.daily?.["temperature_2m_max"][dayIndex],
+                    )}
+              </p>
+            ) : (
+              <div>loading...</div>
+            )}
           </div>
 
           <div>
@@ -172,7 +206,7 @@ function App() {
                   </div>
                 ))
             ) : (
-              <p>loading...</p>
+              <div>loading...</div>
             )}
           </div>
         </div>
@@ -200,7 +234,7 @@ function App() {
               </div>
             ))
           ) : (
-            <p>Loading...</p>
+            <div>loading...</div>
           )}
         </div>
         <div id="moreInfo"></div>

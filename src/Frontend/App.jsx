@@ -70,13 +70,15 @@ function App() {
     if (!coord?.lat || !coord?.lon) return;
 
     const intervalId = setInterval(async () => {
+      if (!isToday(weatherData, date)) return;
+
       const dateTime = await getDateTime(coord);
       setDate(dateTime.date);
       setTime(dateTime.time);
     }, 60000);
 
     return () => clearInterval(intervalId);
-  }, [coord]);
+  }, [coord, weatherData, date]);
 
   const today = isToday(weatherData, date);
   const dayIndex = getDayIndex(weatherData, date);
@@ -103,11 +105,10 @@ function App() {
                 country: name,
                 city: "",
               });
-              const newDate = await getDate({ lat, lon });
-              setDate(newDate);
+              const dateTime = await getDateTime({ lat, lon });
 
-              const newTime = await getTime({ lat, lon });
-              setTime(newTime);
+              setDate(dateTime.date);
+              setTime(dateTime.time);
               console.log("country updated");
             }}
             className="border"
@@ -133,7 +134,7 @@ function App() {
 
         <div id="main">
           <div id="current">
-            {isToday ? (
+            {today ? (
               <SkeletonImage
                 src={`./src/assets/WeatherCode/weatherCode${weatherData.current?.["weather_code"]}.png`}
               />
@@ -146,7 +147,7 @@ function App() {
             {weatherData.current?.["temperature_2m"] &&
             weatherData.daily?.["temperature_2m_max"] ? (
               <h1>
-                {isToday
+                {today
                   ? weatherData.current?.["temperature_2m"]
                   : weatherData.daily?.["temperature_2m_max"][dayIndex]}
               </h1>
@@ -167,16 +168,16 @@ function App() {
 
           <div id="info">
             <h3>Weather</h3>
-            {date ? <p>{date ?? "loading..."}</p> : <div>loading...</div>}
-            {time ? <p>{time ?? "loading..."}</p> : <div>loading...</div>}
+            {date ? <p>{date}</p> : <div>loading...</div>}
+            {time ? <p>{time}</p> : <div>loading...</div>}
 
-            {weatherData.current?.["weather_code"] &&
-            weatherData.daily?.["temperature_2m_max"] ? (
+            {weatherData.current?.["weather_code"] !== undefined &&
+            weatherData.daily?.["weather_code"] ? (
               <p>
-                {isToday
+                {today
                   ? weatherCodeToText(weatherData.current?.["weather_code"])
                   : weatherCodeToText(
-                      weatherData.daily?.["temperature_2m_max"][dayIndex],
+                      weatherData.daily?.["weather_code"][dayIndex],
                     )}
               </p>
             ) : (

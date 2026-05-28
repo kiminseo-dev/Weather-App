@@ -25,6 +25,8 @@ function App() {
   const [searchText, setSearchText] = useState("");
 
   const [iconLoaded, setIconLoaded] = useState(false);
+  const [weatherDataSource, setWeatherDataSource] = useState("live");
+  const [nameDataSource, setNameDataSource] = useState("live");
 
   const handleDebouncedChange = useMemo(() => {
     return debounce(async (value) => {
@@ -43,7 +45,8 @@ function App() {
     setCoord(c);
 
     const data = await fetchLocationName(c);
-    setLocationName(data);
+    setLocationName(data.nameData);
+    setNameDataSource(data.source);
 
     const dateTime = await getDateTime(c);
     setDate(dateTime.date);
@@ -59,7 +62,8 @@ function App() {
       daily: ["temperature_2m_max", "temperature_2m_min", "weather_code"],
     });
 
-    setWeatherData(fetchedWeatherData);
+    setWeatherData(fetchedWeatherData.data);
+    setWeatherDataSource(fetchedWeatherData.source);
   }
 
   useEffect(() => {
@@ -132,6 +136,8 @@ function App() {
           <div>loading...</div>
         )}
 
+        <p>{nameDataSource}</p>
+
         <div id="main">
           <div id="current">
             {today ? (
@@ -170,6 +176,8 @@ function App() {
             <h3>Weather</h3>
             {date ? <p>{date}</p> : <div>loading...</div>}
             {time ? <p>{time}</p> : <div>loading...</div>}
+
+            <p>{weatherDataSource}</p>
 
             {weatherData.current?.["weather_code"] !== undefined &&
             weatherData.daily?.["weather_code"] ? (

@@ -1,3 +1,5 @@
+import { cache } from "react";
+
 //* gets user latitude and longitude position
 export function getUserCoord() {
   return new Promise((resolve, reject) => {
@@ -17,19 +19,38 @@ export function getUserCoord() {
 
 //returns object with country and city
 export async function fetchLocationName(coord) {
-  try {
-    const getCountryApiUrl = `https://nominatim.openstreetmap.org/reverse?lat=${coord.lat}&lon=${coord.lon}&format=json`;
+  const getCountryApiUrl = `https://nominatim.openstreetmap.org/reverse?lat=${coord.lat}&lon=${coord.lon}&format=json`;
 
+  try {
     const response = await fetch(getCountryApiUrl);
+    if (!response.ok) {
+      throw new Error("Fetch Failed");
+    }
+
     const data = await response.json();
+    localStorage.setItem("cachedLocationName", JSON.stringify(data));
 
     return {
-      country: data["address"]["country"],
-      city: data["address"]["city"],
+      nameData: {
+        country: data["address"]["country"],
+        city: data["address"]["city"],
+      },
+      source: "live",
     };
   } catch (error) {
     console.log(error);
-    throw error;
+
+    const cached = JSON.parse(localStorage.getItem("cachedLocationName"));
+    if (cached) {
+      return {
+        nameData: {
+          country: cached["address"]["country"],
+          city: cached["address"]["city"],
+        },
+        source: "not live",
+      };
+    }
+    throw new Error("No cached data available (locationName)");
   }
 }
 
@@ -61,14 +82,28 @@ export async function fetchWeatherData(coord, toFetch) {
 
   try {
     const response = await fetch(apiUrl);
-    const data = await response.json();
+    if (!response.ok) {
+      throw new Error("Fetch failed");
+    }
 
-    return data;
+    const data = await response.json();
+    localStorage.setItem("cachedWeatherData", JSON.stringify(data));
+    return {
+      data,
+      source: "live",
+    };
   } catch (error) {
     console.log(error);
-    throw error;
+    const cached = JSON.parse(localStorage.getItem("cachedWeatherData"));
+
+    if (cached) {
+      return {
+        data: cached,
+        source: "not live",
+      };
+    }
+    throw new Error("No cached data available (weatherData)");
   }
-  i;
 }
 
 export async function getDateTime({ lat, lon }) {

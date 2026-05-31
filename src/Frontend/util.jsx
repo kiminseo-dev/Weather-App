@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export function SkeletonImage({ src, alt }) {
+export function SkeletonImage({ src, alt, width, height }) {
   const [loaded, setLoaded] = useState(false);
 
   return (
@@ -9,8 +9,8 @@ export function SkeletonImage({ src, alt }) {
 
       <img
         src={src}
-        width="50"
-        height="50"
+        width={width}
+        height={height}
         alt={alt}
         onLoad={() => setLoaded(true)}
         style={{ display: loaded ? "block" : "none" }}

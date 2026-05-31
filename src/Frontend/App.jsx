@@ -183,15 +183,15 @@ function App() {
           </div>
         ))}
       </nav>
-      <div id="Everything">
+      <main>
         {locationName.country ? (
-          <h2>{locationName.country}</h2>
+          <h1>{locationName.country}</h1>
         ) : (
           <div>loading...</div>
         )}
 
         {locationName.city ? (
-          <h3>{locationName.city}</h3>
+          <h2>{locationName.city}</h2>
         ) : (
           <div>loading...</div>
         )}
@@ -204,11 +204,15 @@ function App() {
               <SkeletonImage
                 src={weatherIcon[weatherData.current?.["weather_code"]]}
                 alt="weater code icon"
+                width="50px"
+                height="50px"
               />
             ) : (
               <SkeletonImage
                 src={weatherIcon[weatherData.daily?.["weather_code"][dayIndex]]}
                 alt="weater code icon"
+                width="50px"
+                height="50px"
               />
             )}
 
@@ -235,7 +239,7 @@ function App() {
           </div>
 
           <div id="info">
-            <h3>Weather</h3>
+            <h2>Weather</h2>
             {date ? <p>{date}</p> : <div>loading...</div>}
             {time ? <p>{time}</p> : <div>loading...</div>}
 
@@ -256,9 +260,9 @@ function App() {
           </div>
 
           <div>
-            <h3>
+            <h2>
               <strong>Today</strong>
-            </h3>
+            </h2>
             {weatherData.hourly ? (
               weatherData.hourly.time
                 .map((time, index) => ({
@@ -286,9 +290,9 @@ function App() {
         </div>
 
         <div id="sevendayPrediction">
-          <h3>
+          <h2>
             <strong>7 day forecast</strong>
-          </h3>
+          </h2>
           {weatherData.daily ? (
             weatherData.daily.time.map((day, index) => (
               <div
@@ -315,7 +319,7 @@ function App() {
           )}
         </div>
         <div id="moreInfo"></div>
-      </div>
+      </main>
     </div>
   );
 }

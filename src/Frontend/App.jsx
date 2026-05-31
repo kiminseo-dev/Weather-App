@@ -88,6 +88,8 @@ function App() {
   const [weatherDataSource, setWeatherDataSource] = useState("live");
   const [nameDataSource, setNameDataSource] = useState("live");
 
+  const [isOpen, setIsOpen] = useState(false);
+
   const handleDebouncedChange = useMemo(() => {
     return debounce(async (value) => {
       if (!value.trim()) {
@@ -150,47 +152,70 @@ function App() {
   return (
     <div>
       <nav>
-        <input
-          value={searchText}
-          onChange={(e) => {
-            const value = e.target.value;
-            setSearchText(value);
-            handleDebouncedChange(value);
-          }}
-          placeholder="Type Country or City..."
-        />
-        {locationList.map(({ name, lat, lon }, index) => (
+        <a href="#main-weather-display">
+          <img src="logo" />
+        </a>
+        <input onClick={() => setIsOpen(true)} placeholder="Search..." />
+        {isOpen && (
           <div
-            key={`${lat}-${lon}-${index}`}
-            onClick={async () => {
-              fetchData({ lat, lon });
-              setCoord({ lat, lon });
-              setLocationName({
-                country: name,
-                city: "",
-              });
-              const dateTime = await getDateTime({ lat, lon });
-
-              setDate(dateTime.date);
-              setTime(dateTime.time);
-              console.log("country updated");
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center"
+            onClick={() => {
+              setIsOpen(false);
+              setSearchText("");
+              setLocationList([]); 
             }}
-            className="border"
           >
-            <p>{name}</p>
-            <p>{lat}</p>
-            <p>{lon}</p>
+            <div
+              className="bg-white p-4 rounded-lg w-[400px] max-h-[70vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <input
+                value={searchText}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setSearchText(value);
+                  handleDebouncedChange(value);
+                }}
+                placeholder="Type Country or City..."
+                className="w-full border p-2 mb-3"
+                autoFocus
+              />
+
+              {locationList.map(({ name, lat, lon }, index) => (
+                <div
+                  key={`${lat}-${lon}-${index}`}
+                  onClick={async () => {
+                    fetchData({ lat, lon });
+                    setCoord({ lat, lon });
+                    setLocationName({ country: name, city: "" });
+
+                    const dateTime = await getDateTime({ lat, lon });
+                    setDate(dateTime.date);
+                    setTime(dateTime.time);
+
+                    setSearchText("");
+                    setIsOpen(false);
+                    setLocationList([]); 
+                  }}
+                  className="border p-2 cursor-pointer hover:bg-gray-100"
+                >
+                  <p>{name}</p>
+                  <p>{lat}</p>
+                  <p>{lon}</p>
+                </div>
+              ))}
+            </div>
           </div>
-        ))}
+        )}
       </nav>
-      <main>
-        {locationName.country ? (
+      <main id="main-weather-display">
+        {locationName.country !== undefined ? (
           <h1>{locationName.country}</h1>
         ) : (
           <div>loading...</div>
         )}
 
-        {locationName.city ? (
+        {locationName.city !== undefined ? (
           <h2>{locationName.city}</h2>
         ) : (
           <div>loading...</div>

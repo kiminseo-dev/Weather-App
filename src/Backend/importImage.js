@@ -58,4 +58,27 @@ const weatherIcon = {
   99: weatherCode99,
 };
 
-export { weatherIcon };
+import magnifiyingGlass from "../assets/magnifyingGlass.png"
+import logo from "../assets/logo.png"
+
+import clearSky from "../assets/Backgrounds/clearSky.jpg"
+import mainlyClearSky from "../assets/Backgrounds/mainlyClearSky.jpg"
+import partlyCloudy from "../assets/Backgrounds/partlyCloudy.jpg"
+import overcast from "../assets/Backgrounds/overcast.jpg"
+import fog from "../assets/Backgrounds/fog.jpg"
+import drizzle from "../assets/Backgrounds/drizzle.jpg"
+import freezingDrizzle from "../assets/Backgrounds/freezingDrizzle.jpg"
+import rain from "../assets/Backgrounds/rain.jpg"
+
+const backgrounds = {
+  clearSky,
+  mainlyClearSky,
+  partlyCloudy,
+  overcast,
+  fog,
+  drizzle,
+  freezingDrizzle,
+  rain,
+}
+
+export { weatherIcon, magnifiyingGlass, logo, backgrounds};

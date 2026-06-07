@@ -5,7 +5,9 @@ export function SkeletonImage({ src, alt, width, height }) {
 
   return (
     <>
-      {!loaded && <div className="skeletonImage">loading image...</div>}
+      {!loaded && (
+        <div className="h-[70px] w-[70px] rounded bg-black/40 animate-pulse"></div>
+      )}
 
       <img
         src={src}
@@ -14,6 +16,7 @@ export function SkeletonImage({ src, alt, width, height }) {
         alt={alt}
         onLoad={() => setLoaded(true)}
         style={{ display: loaded ? "block" : "none" }}
+        className="self-start"
       />
     </>
   );

@@ -47,7 +47,7 @@ export async function fetchLocationName(coord) {
           country: cached["address"]["country"],
           city: cached["address"]["city"],
         },
-        source: "not live",
+        source: "delayed",
       };
     }
     throw new Error("No cached data available (locationName)");
@@ -99,7 +99,7 @@ export async function fetchWeatherData(coord, toFetch) {
     if (cached) {
       return {
         data: cached,
-        source: "not live",
+        source: "delayed",
       };
     }
     throw new Error("No cached data available (weatherData)");
@@ -173,4 +173,12 @@ export function weatherCodeToText(code) {
   };
 
   return weatherCodes[code];
+}
+
+export function getWeekdayShort(dateStr) {
+  const date = new Date(dateStr);
+  
+  return date.toLocaleDateString("en-US", {
+    weekday: "short",
+  });
 }

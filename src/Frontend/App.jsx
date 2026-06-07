@@ -9,6 +9,7 @@ import {
   isToday,
   getDayIndex,
   weatherCodeToText,
+  getWeekdayShort,
 } from "../Backend/fetchData";
 import { SkeletonImage } from "./util.jsx";
 import {
@@ -20,10 +21,7 @@ import {
 
 function App() {
   const [coord, setCoord] = useState({});
-  const [locationName, setLocationName] = useState({
-    country: "loading...",
-    city: "loading...",
-  });
+  const [locationName, setLocationName] = useState({});
   const [weatherData, setWeatherData] = useState({});
   const [date, setDate] = useState(null);
   const [time, setTime] = useState(null);
@@ -144,11 +142,24 @@ function App() {
                     className="w-full bg-transparent border-0 focus:outline-none focus:ring-0 caret-white/70 placeholder-white/70 p-0 placeholder:text-sm text-white/70"
                     autoFocus
                   />
+                  {nameDataSource === "live" ? (
+                    <div className="flex items-center gap-1">
+                      <div className="w-[4px] h-[4px] rounded-full bg-emerald-400 animate-pulse"></div>
+                      <p className="text-emerald-400">Live</p>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-1">
+                      <div className="w-[4px] h-[4px] rounded-full bg-amber-500 animate-pulse"></div>
+                      <p className="text-amber-500">Delayed</p>
+                    </div>
+                  )}
                 </div>
 
                 <div className="border border-white/10 w-[100%]"></div>
 
-                {locationList.length === 0 && (<p className="text-white/50 text-center mt-5">No results</p>)}
+                {locationList.length === 0 && (
+                  <p className="text-white/50 text-center mt-5">No results</p>
+                )}
 
                 <div className="max-h-[50vh] overflow-y-auto ">
                   {locationList.map(({ name, lat, lon }, index) => (
@@ -157,7 +168,10 @@ function App() {
                       onClick={async () => {
                         fetchData({ lat, lon });
                         setCoord({ lat, lon });
-                        setLocationName({ country: name, city: "" });
+                        setLocationName({
+                          country: name.split(",")[0],
+                          city: name.split(",").slice(1).join(","),
+                        });
 
                         const dateTime = await getDateTime({ lat, lon });
                         setDate(dateTime.date);
@@ -167,7 +181,7 @@ function App() {
                         setIsOpen(false);
                         setLocationList([]);
                       }}
-                      className="border border-white/10 p-2 cursor-pointer hover:bg-black/20"
+                      className="border-b border-white/10 p-2 cursor-pointer hover:bg-black/20"
                     >
                       <p className="text-white/70 text-m font-medium">{name}</p>
                       <p className="text-white/70 text-sm">Latitude: {lat}</p>
@@ -179,142 +193,201 @@ function App() {
             </div>
           )}
         </nav>
-        <main id="main-weather-display">
-          {locationName.country !== undefined ? (
-            <h1>{locationName.country}</h1>
-          ) : (
-            <div>loading...</div>
-          )}
+        <main id="main-weather-display" className="mt-4">
+          <div className="flex items-center gap-5">
+            <div className="flex flex-col gap-[2px] pl-1">
+              <div className="h-[20px] flex items-center">
+                {locationName.country !== undefined ? (
+                  <h1 className="text-xl font-medium text-white leading-none">
+                    {locationName.country}
+                  </h1>
+                ) : (
+                  <div className="h-[20px] w-[120px] rounded bg-black/40 animate-pulse"></div>
+                )}
+              </div>
 
-          {locationName.city !== undefined ? (
-            <h2>{locationName.city}</h2>
-          ) : (
-            <div>loading...</div>
-          )}
-
-          <p>{nameDataSource}</p>
-
-          <div id="main">
-            <div id="current">
-              {today ? (
-                <SkeletonImage
-                  src={weatherIcon[weatherData.current?.["weather_code"]]}
-                  alt="weater code icon"
-                  width="50px"
-                  height="50px"
-                />
-              ) : (
-                <SkeletonImage
-                  src={
-                    weatherIcon[weatherData.daily?.["weather_code"][dayIndex]]
-                  }
-                  alt="weater code icon"
-                  width="50px"
-                  height="50px"
-                />
-              )}
-
-              {weatherData.current?.["temperature_2m"] &&
-              weatherData.daily?.["temperature_2m_max"] ? (
-                <h1>
-                  {today
-                    ? weatherData.current?.["temperature_2m"]
-                    : weatherData.daily?.["temperature_2m_max"][dayIndex]}
-                </h1>
-              ) : (
-                <div>loading...</div>
-              )}
-
-              {weatherData.daily?.temperature_2m_max &&
-              weatherData.daily?.temperature_2m_min ? (
-                <div>
-                  <p>{weatherData.daily?.temperature_2m_max[dayIndex]}</p>
-                  <p>{weatherData.daily?.temperature_2m_min[dayIndex]}</p>
-                </div>
-              ) : (
-                <div>loading...</div>
-              )}
+              <div className="h-[18px] flex items-center">
+                {locationName.city !== undefined ? (
+                  <h2 className="text-lg text-white/80 leanding-none">
+                    {locationName.city}
+                  </h2>
+                ) : (
+                  <div className="h-[18px] w-[175px] rounded bg-black/30 animate-pulse"></div>
+                )}
+              </div>
             </div>
 
-            <div id="info">
-              <h2>Weather</h2>
-              {date ? <p>{date}</p> : <div>loading...</div>}
-              {time ? <p>{time}</p> : <div>loading...</div>}
+            {weatherDataSource === "live" ? (
+              <div className="flex items-center gap-1 bg-emerald-400/30 border border-emerald-400 p-4 w-18 h-7 justify-center rounded-full">
+                <div className="bg-emerald-400 w-2 h-2 rounded-xl animate-pulse"></div>
+                <p className="text-emerald-400 text-sm font-medium">Live</p>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1 p-4 w-25 h-7 justify-center rounded-full bg-amber-500/30 border border-amber-500">
+                <div className="bg-amber-500 w-2 h-2 rounded-xl animate-pulse"></div>
+                <p className="text-sm font-medium text-amber-500">Delayed</p>
+              </div>
+            )}
+          </div>
+          <div
+            id="main"
+            className="mt-2 border border-white/10 p-3 bg-black/30 rounded-xl"
+          >
+            <div className="flex">
+              <div id="current" className="flex gap-2">
+                {today ? (
+                  <SkeletonImage
+                    src={weatherIcon[weatherData.current?.["weather_code"]]}
+                    alt="weater code icon"
+                    width="70px"
+                    height="70px"
+                  />
+                ) : (
+                  <SkeletonImage
+                    src={
+                      weatherIcon[weatherData.daily?.["weather_code"][dayIndex]]
+                    }
+                    alt="weater code icon"
+                    width="70px"
+                    height="70px"
+                  />
+                )}
 
-              <p>{weatherDataSource}</p>
+                <div>
+                  <div>
+                    {weatherData.current?.["temperature_2m"] &&
+                    weatherData.daily?.["temperature_2m_max"] ? (
+                      <h1 className="text-3xl font-medium text-white h-[30px]">
+                        {today
+                          ? weatherData.current?.["temperature_2m"]
+                          : weatherData.daily?.["temperature_2m_max"][dayIndex]}
+                        °
+                      </h1>
+                    ) : (
+                      <div className="w-[70px] h-[30px] rounded bg-black/40 animate-pulse"></div>
+                    )}
+                  </div>
 
-              {weatherData.current?.["weather_code"] !== undefined &&
-              weatherData.daily?.["weather_code"] ? (
-                <p>
-                  {today
-                    ? weatherCodeToText(weatherData.current?.["weather_code"])
-                    : weatherCodeToText(
-                        weatherData.daily?.["weather_code"][dayIndex],
-                      )}
-                </p>
-              ) : (
-                <div>loading...</div>
-              )}
+                  <div className="mt-1">
+                    {weatherData.daily?.temperature_2m_max &&
+                    weatherData.daily?.temperature_2m_min ? (
+                      <div className="flex gap-2">
+                        <p className="text-white/70 h-[16px]">
+                          {weatherData.daily?.temperature_2m_max[dayIndex]}°
+                        </p>
+                        <p className="text-white/50 h-[16px]">
+                          {weatherData.daily?.temperature_2m_min[dayIndex]}°
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="h-[16px] w-[90px] rounded bg-black/40 animate-pulse"></div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div id="info" className="ml-auto flex flex-col gap-1 items-end">
+                <h2 className="text-white text-xl h-[20px]">Weather</h2>
+                {date ? (
+                  <p className="text-white/70 h-[16px]">{date}</p>
+                ) : (
+                  <div className="h-[16px] w-[100px] rounded bg-black/40 animate-pulse mt-1"></div>
+                )}
+                {time ? (
+                  <p className="text-white/70 h-[16px]">{time}</p>
+                ) : (
+                  <div className="h-[16px] w-[55px] rounded bg-black/40 animate-pulse"></div>
+                )}
+
+                {weatherData.current?.["weather_code"] !== undefined &&
+                weatherData.daily?.["weather_code"] ? (
+                  <p className="text-white/70 h-[16px]">
+                    {today
+                      ? weatherCodeToText(weatherData.current?.["weather_code"])
+                      : weatherCodeToText(
+                          weatherData.daily?.["weather_code"][dayIndex],
+                        )}
+                  </p>
+                ) : (
+                  <div className="h-[16px] w-[70px] rounded bg-black/40 animate-pulse"></div>
+                )}
+              </div>
             </div>
 
             <div>
-              <h2>
-                <strong>Today</strong>
-              </h2>
-              {weatherData.hourly ? (
-                weatherData.hourly.time
-                  .map((time, index) => ({
-                    time: weatherData.hourly["time"][index],
-                    weatherCode: weatherData.hourly["weather_code"][index],
-                    temperature: weatherData.hourly["temperature_2m"][index],
-                  }))
-                  .filter((hour) => hour.time.startsWith(date))
-                  .map((hour) => (
-                    <div key={hour.time} className="border">
-                      <p>{hour.time}</p>
-                      <img
-                        src={weatherIcon[hour.weatherCode]}
-                        width="50"
-                        height="50"
-                        alt="weather code icon"
-                      />
-                      <p>{hour.temperature}</p>
-                    </div>
-                  ))
-              ) : (
-                <div>loading...</div>
-              )}
+              <h2 className="text-xl font-medium text-white">Today</h2>
+              <div className="flex overflow-x-auto gap-1 mt-2 pb-2">
+                {weatherData.hourly ? (
+                  weatherData.hourly.time
+                    .map((time, index) => ({
+                      time: weatherData.hourly["time"][index],
+                      weatherCode: weatherData.hourly["weather_code"][index],
+                      temperature: weatherData.hourly["temperature_2m"][index],
+                    }))
+                    .filter((hour) => hour.time.startsWith(date))
+                    .map((hour) => (
+                      <div
+                        key={hour.time}
+                        className="flex flex-col items-center border border-white/10 rounded bg-black/30 p-5 gap-1"
+                      >
+                        <p className="text-white/70">
+                          {hour.time.split("T")[1]}
+                        </p>
+                        <img
+                          src={weatherIcon[hour.weatherCode]}
+                          width="50"
+                          height="50"
+                          alt="weather code icon"
+                        />
+                        <p className="text-white">{hour.temperature}°</p>
+                      </div>
+                    ))
+                ) : (
+                  <div className="w-[100%] h-[130px] bg-black/40 rounded animate-pulse"></div>
+                )}
+              </div>
             </div>
           </div>
 
-          <div id="sevendayPrediction">
-            <h2>
-              <strong>7 day forecast</strong>
-            </h2>
-            {weatherData.daily ? (
-              weatherData.daily.time.map((day, index) => (
-                <div
-                  key={`${day}-${index}`}
-                  className="border"
-                  onClick={() => {
-                    setDate(day);
-                    console.log("hourly forecast updated");
-                  }}
-                >
-                  <p>{day}</p>
-                  <img
-                    src={weatherIcon[weatherData.daily["weather_code"][index]]}
-                    width="50"
-                    height="50"
-                    alt="weather code icon"
-                  />
-                  <p>{weatherData.daily["temperature_2m_max"][index]}</p>
-                  <p>{weatherData.daily["temperature_2m_min"][index]}</p>
-                </div>
-              ))
-            ) : (
-              <div>loading...</div>
-            )}
+          <div
+            id="sevendayPrediction"
+            className="bg-black/30 mt-3 rounded p-3 border border-white/10"
+          >
+            <h2 className="text-xl font-medium text-white">7 day forecast</h2>
+            <div className="flex mt-2 gap-2 overflow-x-auto pb-2">
+              {weatherData.daily ? (
+                weatherData.daily.time.map((day, index) => (
+                  <div
+                    key={`${day}-${index}`}
+                    className={`bg-black/30 ${day === date ? "bg-black/60" : ""} rounded-lg p-3 flex flex-col items-center gap-3 ${day !== date ? "hover:bg-black/40" : ""} border border-white/10 cursor-pointer w-[300px]`}
+                    onClick={() => {
+                      setDate(day);
+                      console.log("hourly forecast updated");
+                    }}
+                  >
+                    <p className="text-white font-medium">{getWeekdayShort(day)}</p>
+                    <img
+                      src={
+                        weatherIcon[weatherData.daily["weather_code"][index]]
+                      }
+                      width="50"
+                      height="50"
+                      alt="weather code icon"
+                    />
+                    <div className="flex gap-2">
+                      <p className="text-white">
+                        {weatherData.daily["temperature_2m_max"][index]}°
+                      </p>
+                      <p className="text-white/70">
+                        {weatherData.daily["temperature_2m_min"][index]}°
+                      </p>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="w-[100%] h-[140px] bg-black/40 rounded animate-pulse"></div>
+              )}
+            </div>
           </div>
           <div id="moreInfo"></div>
         </main>

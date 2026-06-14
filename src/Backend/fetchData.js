@@ -106,28 +106,20 @@ export async function fetchWeatherData(coord, toFetch) {
   }
 }
 
-export async function getDateTime({ lat, lon }) {
-  const response = await fetch(
-    `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&timezone=auto`,
-  );
-
-  const data = await response.json();
-
-  const timeZone = data.timezone;
+export async function getDateTime() {
+  const now = new Date();
 
   const date = new Intl.DateTimeFormat("en-CA", {
-    timeZone,
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
-  }).format(new Date());
+  }).format(now);
 
   const time = new Intl.DateTimeFormat("en-CA", {
-    timeZone,
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,
-  }).format(new Date());
+  }).format(now);
 
   return { date, time };
 }
@@ -177,8 +169,24 @@ export function weatherCodeToText(code) {
 
 export function getWeekdayShort(dateStr) {
   const date = new Date(dateStr);
-  
+
   return date.toLocaleDateString("en-US", {
     weekday: "short",
   });
+}
+
+export function getWeekday(dateStr) {
+  const date = new Date(dateStr);
+
+  return date.toLocaleDateString("en-US", {
+    weekday: "long",
+  });
+}
+
+export function saveRecentSearch(data) {
+  localStorage.setItem("recentSearch", JSON.stringify(data));
+}
+
+export function readRecentSearch() {
+  return JSON.parse(localStorage.getItem("recentSearch")) || [];
 }

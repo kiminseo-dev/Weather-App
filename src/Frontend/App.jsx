@@ -10,6 +10,9 @@ import {
   getDayIndex,
   weatherCodeToText,
   getWeekdayShort,
+  getWeekday,
+  saveRecentSearch,
+  readRecentSearch,
 } from "../Backend/fetchData";
 import { SkeletonImage } from "./util.jsx";
 import {
@@ -33,6 +36,8 @@ function App() {
   const [nameDataSource, setNameDataSource] = useState("live");
 
   const [isOpen, setIsOpen] = useState(false);
+
+  const [recentSearch, setRecentSearch] = useState(readRecentSearch() || []);
 
   const handleDebouncedChange = useMemo(() => {
     return debounce(async (value) => {
@@ -90,6 +95,16 @@ function App() {
     return () => clearInterval(intervalId);
   }, [coord, weatherData, date]);
 
+  useEffect(() => {
+    saveRecentSearch(recentSearch);
+    console.log("updated")
+  }, [recentSearch]);
+
+  useEffect(() => {
+    const recentSearchData = readRecentSearch();
+    setRecentSearch(recentSearchData);
+  }, [])
+
   const today = isToday(weatherData, date);
   const dayIndex = getDayIndex(weatherData, date);
 
@@ -97,7 +112,7 @@ function App() {
     <div>
       <div
         style={{ backgroundImage: `url(${backgrounds.mainlyClearSky})` }}
-        className="h-screen w-full bg-cover bg-center bg-no-repeat p-2"
+        className="h-screen w-full bg-cover bg-center bg-no-repeat p-2 overflow-x-hidden"
       >
         <nav className="flex items-center gap-5 h-10 pr-2">
           <a href="#main-weather-display">
@@ -121,7 +136,7 @@ function App() {
               }}
             >
               <div
-                className="bg-black/30 border border-white/10 rounded-lg w-[500px] max-sm:w-[95%] overflow-hidden min-h-[120px]"
+                className="bg-black/50 border border-white/10 rounded-lg w-[500px] max-sm:w-[95%] overflow-hidden min-h-[120px]"
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="flex items-center gap-2 p-2">
@@ -177,6 +192,15 @@ function App() {
                         setDate(dateTime.date);
                         setTime(dateTime.time);
 
+                        setRecentSearch((prev) => [
+                          {
+                            name,
+                            lat,
+                            lon,
+                          },
+                          ...prev,
+                        ]);
+
                         setSearchText("");
                         setIsOpen(false);
                         setLocationList([]);
@@ -208,7 +232,7 @@ function App() {
 
               <div className="h-[18px] flex items-center">
                 {locationName.city !== undefined ? (
-                  <h2 className="text-lg text-white/80 leanding-none">
+                  <h2 className="text-lg text-white/80 overflow-hidden leanding-none">
                     {locationName.city}
                   </h2>
                 ) : (
@@ -229,167 +253,233 @@ function App() {
               </div>
             )}
           </div>
-          <div
-            id="main"
-            className="mt-2 border border-white/10 p-3 bg-black/30 rounded-xl"
-          >
-            <div className="flex">
-              <div id="current" className="flex gap-2">
-                {today ? (
-                  <SkeletonImage
-                    src={weatherIcon[weatherData.current?.["weather_code"]]}
-                    alt="weater code icon"
-                    width="70px"
-                    height="70px"
-                  />
-                ) : (
-                  <SkeletonImage
-                    src={
-                      weatherIcon[weatherData.daily?.["weather_code"][dayIndex]]
-                    }
-                    alt="weater code icon"
-                    width="70px"
-                    height="70px"
-                  />
-                )}
-
-                <div>
-                  <div>
-                    {weatherData.current?.["temperature_2m"] &&
-                    weatherData.daily?.["temperature_2m_max"] ? (
-                      <h1 className="text-3xl font-medium text-white h-[30px]">
-                        {today
-                          ? weatherData.current?.["temperature_2m"]
-                          : weatherData.daily?.["temperature_2m_max"][dayIndex]}
-                        °
-                      </h1>
+          <div className="flex gap-3 pt-2 flex-1">
+            <div className="w-[70%] flex flex-col gap-3">
+              <div
+                id="main"
+                className="border border-white/10 p-3 bg-black/30 rounded-xl"
+              >
+                <div className="flex">
+                  <div id="current" className="flex gap-2">
+                    {today ? (
+                      <SkeletonImage
+                        src={weatherIcon[weatherData.current?.["weather_code"]]}
+                        alt="weater code icon"
+                        width="70px"
+                        height="70px"
+                      />
                     ) : (
-                      <div className="w-[70px] h-[30px] rounded bg-black/40 animate-pulse"></div>
+                      <SkeletonImage
+                        src={
+                          weatherIcon[
+                            weatherData.daily?.["weather_code"][dayIndex]
+                          ]
+                        }
+                        alt="weater code icon"
+                        width="70px"
+                        height="70px"
+                      />
                     )}
+
+                    <div>
+                      <div>
+                        {weatherData.current?.["temperature_2m"] &&
+                        weatherData.daily?.["temperature_2m_max"] ? (
+                          <h1 className="text-3xl font-medium text-white h-[30px] leading-none">
+                            {today
+                              ? weatherData.current?.["temperature_2m"]
+                              : weatherData.daily?.["temperature_2m_max"][
+                                  dayIndex
+                                ]}
+                            °
+                          </h1>
+                        ) : (
+                          <div className="w-[70px] h-[30px] rounded bg-black/40 animate-pulse"></div>
+                        )}
+                      </div>
+
+                      <div className="mt-1">
+                        {weatherData.daily?.temperature_2m_max &&
+                        weatherData.daily?.temperature_2m_min ? (
+                          <div className="flex gap-2">
+                            <p className="text-white/70 h-[16px] leading-none">
+                              {weatherData.daily?.temperature_2m_max[dayIndex]}°
+                            </p>
+                            <p className="text-white/50 h-[16px] leading-none">
+                              {weatherData.daily?.temperature_2m_min[dayIndex]}°
+                            </p>
+                          </div>
+                        ) : (
+                          <div className="h-[16px] w-[90px] rounded bg-black/40 animate-pulse"></div>
+                        )}
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="mt-1">
-                    {weatherData.daily?.temperature_2m_max &&
-                    weatherData.daily?.temperature_2m_min ? (
-                      <div className="flex gap-2">
-                        <p className="text-white/70 h-[16px]">
-                          {weatherData.daily?.temperature_2m_max[dayIndex]}°
-                        </p>
-                        <p className="text-white/50 h-[16px]">
-                          {weatherData.daily?.temperature_2m_min[dayIndex]}°
-                        </p>
-                      </div>
+                  <div
+                    id="info"
+                    className="ml-auto flex flex-col gap-1 items-end"
+                  >
+                    <h2 className="text-white text-xl h-[20px] mb-1">
+                      Weather
+                    </h2>
+                    {date ? (
+                      <p className="text-white/70 h-[16px] leading-none">
+                        {date}
+                      </p>
                     ) : (
-                      <div className="h-[16px] w-[90px] rounded bg-black/40 animate-pulse"></div>
+                      <div className="h-[16px] w-[100px] rounded bg-black/40 animate-pulse"></div>
+                    )}
+                    {time ? (
+                      <p className="text-white/70 h-[16px] leading-none">
+                        {time}
+                      </p>
+                    ) : (
+                      <div className="h-[16px] w-[55px] rounded bg-black/40 animate-pulse"></div>
+                    )}
+
+                    {weatherData.current?.["weather_code"] !== undefined &&
+                    weatherData.daily?.["weather_code"] ? (
+                      <p className="text-white/70 h-[16px] leading-none">
+                        {today
+                          ? weatherCodeToText(
+                              weatherData.current?.["weather_code"],
+                            )
+                          : weatherCodeToText(
+                              weatherData.daily?.["weather_code"][dayIndex],
+                            )}
+                      </p>
+                    ) : (
+                      <div className="h-[16px] w-[70px] rounded bg-black/40 animate-pulse"></div>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <h2 className="text-xl font-medium text-white">
+                    {getWeekday(date)}
+                  </h2>
+                  <div className="flex overflow-x-auto gap-1 mt-2 pb-2">
+                    {weatherData.hourly ? (
+                      weatherData.hourly.time
+                        .map((time, index) => ({
+                          time: weatherData.hourly["time"][index],
+                          weatherCode:
+                            weatherData.hourly["weather_code"][index],
+                          temperature:
+                            weatherData.hourly["temperature_2m"][index],
+                        }))
+                        .filter((hour) => hour.time.startsWith(date))
+                        .map((hour) => (
+                          <div
+                            key={hour.time}
+                            className="flex flex-col items-center border border-white/10 rounded bg-black/30 p-5 gap-1"
+                          >
+                            <p className="text-white/70">
+                              {hour.time.split("T")[1]}
+                            </p>
+                            <img
+                              src={weatherIcon[hour.weatherCode]}
+                              width="50"
+                              height="50"
+                              alt="weather code icon"
+                            />
+                            <p className="text-white">{hour.temperature}°</p>
+                          </div>
+                        ))
+                    ) : (
+                      <div className="w-[100%] h-[130px] bg-black/40 rounded animate-pulse"></div>
                     )}
                   </div>
                 </div>
               </div>
 
-              <div id="info" className="ml-auto flex flex-col gap-1 items-end">
-                <h2 className="text-white text-xl h-[20px]">Weather</h2>
-                {date ? (
-                  <p className="text-white/70 h-[16px]">{date}</p>
-                ) : (
-                  <div className="h-[16px] w-[100px] rounded bg-black/40 animate-pulse mt-1"></div>
-                )}
-                {time ? (
-                  <p className="text-white/70 h-[16px]">{time}</p>
-                ) : (
-                  <div className="h-[16px] w-[55px] rounded bg-black/40 animate-pulse"></div>
-                )}
-
-                {weatherData.current?.["weather_code"] !== undefined &&
-                weatherData.daily?.["weather_code"] ? (
-                  <p className="text-white/70 h-[16px]">
-                    {today
-                      ? weatherCodeToText(weatherData.current?.["weather_code"])
-                      : weatherCodeToText(
-                          weatherData.daily?.["weather_code"][dayIndex],
-                        )}
-                  </p>
-                ) : (
-                  <div className="h-[16px] w-[70px] rounded bg-black/40 animate-pulse"></div>
-                )}
-              </div>
-            </div>
-
-            <div>
-              <h2 className="text-xl font-medium text-white">Today</h2>
-              <div className="flex overflow-x-auto gap-1 mt-2 pb-2">
-                {weatherData.hourly ? (
-                  weatherData.hourly.time
-                    .map((time, index) => ({
-                      time: weatherData.hourly["time"][index],
-                      weatherCode: weatherData.hourly["weather_code"][index],
-                      temperature: weatherData.hourly["temperature_2m"][index],
-                    }))
-                    .filter((hour) => hour.time.startsWith(date))
-                    .map((hour) => (
+              <div
+                id="sevendayPrediction"
+                className="bg-black/30 rounded-xl p-3 border border-white/10"
+              >
+                <h2 className="text-xl font-medium text-white">
+                  7 day forecast
+                </h2>
+                <div className="flex mt-2 gap-2 overflow-x-auto pb-2">
+                  {weatherData.daily ? (
+                    weatherData.daily.time.map((day, index) => (
                       <div
-                        key={hour.time}
-                        className="flex flex-col items-center border border-white/10 rounded bg-black/30 p-5 gap-1"
+                        key={`${day}-${index}`}
+                        className={`bg-black/30 ${day === date ? "bg-black/60" : ""} rounded-lg p-3 flex flex-col items-center gap-3 ${day !== date ? "hover:bg-black/40" : ""} border border-white/10 cursor-pointer w-[150px] flex-shrink-0`}
+                        onClick={() => {
+                          setDate(day);
+                          console.log("hourly forecast updated");
+                        }}
                       >
-                        <p className="text-white/70">
-                          {hour.time.split("T")[1]}
+                        <p className="text-white font-medium">
+                          {getWeekdayShort(day)}
                         </p>
                         <img
-                          src={weatherIcon[hour.weatherCode]}
+                          src={
+                            weatherIcon[
+                              weatherData.daily["weather_code"][index]
+                            ]
+                          }
                           width="50"
                           height="50"
                           alt="weather code icon"
                         />
-                        <p className="text-white">{hour.temperature}°</p>
+                        <div className="flex gap-2">
+                          <p className="text-white">
+                            {weatherData.daily["temperature_2m_max"][index]}°
+                          </p>
+                          <p className="text-white/70">
+                            {weatherData.daily["temperature_2m_min"][index]}°
+                          </p>
+                        </div>
                       </div>
                     ))
-                ) : (
-                  <div className="w-[100%] h-[130px] bg-black/40 rounded animate-pulse"></div>
-                )}
+                  ) : (
+                    <div className="w-[100%] h-[140px] bg-black/40 rounded animate-pulse"></div>
+                  )}
+                </div>
+              </div>
+            </div>
+            <div id="moreInfo" className="bg-black/30 rounded-xl w-[30%] p-3">
+              <h2 className="text-xl font-medium text-white">Activity</h2>
+              <div>
+                <h2 className="text-lg text-white">More Info</h2>
+              </div>
+              <div id="recent">
+                <h2 className="text-lg text-white">Recent Search</h2>
+                {recentSearch.map(({ name, lat, lon }, index) => (
+                  <div
+                    key={`${name}-${lat}-${lon}`}
+                    onClick={async () => {
+                      fetchData({ lat, lon });
+                      setCoord({ lat, lon });
+                      setLocationName({
+                        country: name.split(",")[0],
+                        city: name.split(",").slice(1).join(","),
+                      });
+
+                      const dateTime = await getDateTime({ lat, lon });
+                      setDate(dateTime.date);
+                      setTime(dateTime.time);
+                    }}
+                  >
+                    <p>{name.split(",")[0]}</p>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setRecentSearch((prev) =>
+                          prev.filter((_, i) => i !== index),
+                        );
+                      }}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
-
-          <div
-            id="sevendayPrediction"
-            className="bg-black/30 mt-3 rounded p-3 border border-white/10"
-          >
-            <h2 className="text-xl font-medium text-white">7 day forecast</h2>
-            <div className="flex mt-2 gap-2 overflow-x-auto pb-2">
-              {weatherData.daily ? (
-                weatherData.daily.time.map((day, index) => (
-                  <div
-                    key={`${day}-${index}`}
-                    className={`bg-black/30 ${day === date ? "bg-black/60" : ""} rounded-lg p-3 flex flex-col items-center gap-3 ${day !== date ? "hover:bg-black/40" : ""} border border-white/10 cursor-pointer w-[300px]`}
-                    onClick={() => {
-                      setDate(day);
-                      console.log("hourly forecast updated");
-                    }}
-                  >
-                    <p className="text-white font-medium">{getWeekdayShort(day)}</p>
-                    <img
-                      src={
-                        weatherIcon[weatherData.daily["weather_code"][index]]
-                      }
-                      width="50"
-                      height="50"
-                      alt="weather code icon"
-                    />
-                    <div className="flex gap-2">
-                      <p className="text-white">
-                        {weatherData.daily["temperature_2m_max"][index]}°
-                      </p>
-                      <p className="text-white/70">
-                        {weatherData.daily["temperature_2m_min"][index]}°
-                      </p>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="w-[100%] h-[140px] bg-black/40 rounded animate-pulse"></div>
-              )}
-            </div>
-          </div>
-          <div id="moreInfo"></div>
         </main>
       </div>
     </div>

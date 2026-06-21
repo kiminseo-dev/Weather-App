@@ -445,6 +445,7 @@ function App() {
               <h2 className="text-xl font-medium text-white">Activity</h2>
               <div>
                 <h2 className="text-lg text-white">More Info</h2>
+                <p>hello</p>
               </div>
               <div id="recent">
                 <h2 className="text-lg text-white">Recent Search</h2>

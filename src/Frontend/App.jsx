@@ -13,6 +13,7 @@ import {
   getWeekday,
   saveRecentSearch,
   readRecentSearch,
+  weatherDataOptions,
 } from "../Backend/fetchData";
 import { SkeletonImage } from "./util.jsx";
 import {
@@ -36,6 +37,8 @@ function App() {
   const [nameDataSource, setNameDataSource] = useState("live");
 
   const [isOpen, setIsOpen] = useState(false);
+  const [isMoreOpen, setIsMoreOpen] = useState(false);
+  const [searchBar, setSearchBar] = useState(false);
 
   const [recentSearch, setRecentSearch] = useState(readRecentSearch() || []);
 
@@ -97,13 +100,12 @@ function App() {
 
   useEffect(() => {
     saveRecentSearch(recentSearch);
-    console.log("updated")
   }, [recentSearch]);
 
   useEffect(() => {
     const recentSearchData = readRecentSearch();
     setRecentSearch(recentSearchData);
-  }, [])
+  }, []);
 
   const today = isToday(weatherData, date);
   const dayIndex = getDayIndex(weatherData, date);
@@ -445,7 +447,40 @@ function App() {
               <h2 className="text-xl font-medium text-white">Activity</h2>
               <div>
                 <h2 className="text-lg text-white">More Info</h2>
-                <p>hello</p>
+                <div className="hidden">
+                  {Object.entries(weatherDataOptions).map(
+                    ([group, options]) => (
+                      <div key={group}>
+                        <h2>{group}</h2>
+
+                        {options.map((option) => (
+                          <p key={option}>{option}</p>
+                        ))}
+                      </div>
+                    ),
+                  )}
+                </div>
+                <div
+                  className="cursor-pointer"
+                  onClick={() => {
+                    setIsMoreOpen(true);
+                  }}
+                >
+                  Add
+                </div>
+                {isMoreOpen && (
+                  <div
+                    className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center"
+                    onClick={() => {
+                      setIsMoreOpen(false);
+                    }}
+                  >
+                    <div
+                      className="bg-black/50 border border-white/10 rounded-lg w-[500px] max-sm:w-[95%] overflow-hidden min-h-[120px]"
+                      onClick={(e) => e.stopPropagation()}
+                    ></div>
+                  </div>
+                )}
               </div>
               <div id="recent">
                 <h2 className="text-lg text-white">Recent Search</h2>

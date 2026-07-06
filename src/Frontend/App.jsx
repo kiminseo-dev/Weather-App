@@ -11,8 +11,8 @@ import {
   weatherCodeToText,
   getWeekdayShort,
   getWeekday,
-  saveRecentSearch,
-  readRecentSearch,
+  saveData,
+  readData,
   weatherDataOptions,
 } from "../Backend/fetchData";
 import { SkeletonImage } from "./util.jsx";
@@ -40,7 +40,9 @@ function App() {
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const [searchBar, setSearchBar] = useState(false);
 
-  const [recentSearch, setRecentSearch] = useState(readRecentSearch() || []);
+  const [recentSearch, setRecentSearch] = useState(readData("recentSearch") || []);
+
+  const [moreWeatherOptions, setMoreWeatherOptions] = useState(readData("moreWeatherOptions") || []);
 
   const handleDebouncedChange = useMemo(() => {
     return debounce(async (value) => {
@@ -99,11 +101,11 @@ function App() {
   }, [coord, weatherData, date]);
 
   useEffect(() => {
-    saveRecentSearch(recentSearch);
+    saveData("recentSearch", recentSearch);
   }, [recentSearch]);
 
   useEffect(() => {
-    const recentSearchData = readRecentSearch();
+    const recentSearchData = readData("recentSearch");
     setRecentSearch(recentSearchData);
   }, []);
 
@@ -447,19 +449,6 @@ function App() {
               <h2 className="text-xl font-medium text-white">Activity</h2>
               <div>
                 <h2 className="text-lg text-white">More Info</h2>
-                <div className="hidden">
-                  {Object.entries(weatherDataOptions).map(
-                    ([group, options]) => (
-                      <div key={group}>
-                        <h2>{group}</h2>
-
-                        {options.map((option) => (
-                          <p key={option}>{option}</p>
-                        ))}
-                      </div>
-                    ),
-                  )}
-                </div>
                 <div
                   className="cursor-pointer"
                   onClick={() => {
@@ -478,7 +467,25 @@ function App() {
                     <div
                       className="bg-black/50 border border-white/10 rounded-lg w-[500px] max-sm:w-[95%] overflow-hidden min-h-[120px]"
                       onClick={(e) => e.stopPropagation()}
-                    ></div>
+                    >
+                      <div className="overflow-y-auto h-[200px] text-white">
+                        {Object.entries(weatherDataOptions).map(
+                          ([group, options]) => (
+                            <div key={group}>
+                              <h2>{group}</h2>
+
+                              {options.map((option) => (
+                                <div key={option} onClick={() => {
+                                  setMoreWeatherOptions(prev => [...prev, option]);
+                                  console.log([...moreWeatherOptions, option]);
+                                  saveData("moreWeatherOptions", [...moreWeatherOptions, option]);
+                                }} timeFrame={group}>{option}</div>
+                              ))}
+                            </div>
+                          ),
+                        )}
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>

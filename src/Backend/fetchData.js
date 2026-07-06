@@ -183,12 +183,12 @@ export function getWeekday(dateStr) {
   });
 }
 
-export function saveRecentSearch(data) {
-  localStorage.setItem("recentSearch", JSON.stringify(data));
+export function saveData(name, data) {
+  localStorage.setItem(name, JSON.stringify(data));
 }
 
-export function readRecentSearch() {
-  return JSON.parse(localStorage.getItem("recentSearch")) || [];
+export function readData(name) {
+  return JSON.parse(localStorage.getItem(name)) || [];
 }
 
 export const weatherDataOptions = {
@@ -207,7 +207,7 @@ export const weatherDataOptions = {
     "surface_pressure",
     "wind_speed_10m",
     "wind_direction_10m",
-    "wind_gusts_10m"
+    "wind_gusts_10m",
   ],
 
   minute: [
@@ -229,10 +229,10 @@ export const weatherDataOptions = {
     "direct_radiation",
     "direct_normal_irradiance",
     "diffuse_radiation",
-    "sunshine_duration"
+    "sunshine_duration",
   ],
 
-  hour: [
+  hourly: [
     "temperature_2m",
     "relative_humidity_2m",
     "dew_point_2m",
@@ -280,41 +280,35 @@ export const weatherDataOptions = {
     "soil_moisture_1_to_3cm",
     "soil_moisture_3_to_9cm",
     "soil_moisture_9_to_27cm",
-    "soil_moisture_27_to_81cm"
+    "soil_moisture_27_to_81cm",
   ],
 
-  week: [
-    "weather_code",
-
+  daily: [
     "temperature_2m_max",
+    "temperature_2m_mean",
     "temperature_2m_min",
-
     "apparent_temperature_max",
+    "apparent_temperature_mean",
     "apparent_temperature_min",
-
-    "sunrise",
-    "sunset",
-
-    "daylight_duration",
-    "sunshine_duration",
-
-    "uv_index_max",
-    "uv_index_clear_sky_max",
-
+    "precipitation_sum",
     "rain_sum",
     "showers_sum",
     "snowfall_sum",
-    "precipitation_sum",
-
     "precipitation_hours",
     "precipitation_probability_max",
-
+    "precipitation_probability_mean",
+    "precipitation_probability_min",
+    "weather_code",
+    "sunrise",
+    "sunset",
+    "sunshine_duration",
+    "daylight_duration",
     "wind_speed_10m_max",
     "wind_gusts_10m_max",
     "wind_direction_10m_dominant",
-
     "shortwave_radiation_sum",
-
-    "et0_fao_evapotranspiration"
-  ]
+    "et0_fao_evapotranspiration",
+    "uv_index_max",
+    "uv_index_clear_sky_max",
+  ],
 };

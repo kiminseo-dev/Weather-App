@@ -188,7 +188,7 @@ export function saveData(name, data) {
 }
 
 export function readData(name) {
-  return JSON.parse(localStorage.getItem(name)) || [];
+  return JSON.parse(localStorage.getItem(name)) || null;
 }
 
 export const weatherDataOptions = {
@@ -210,7 +210,7 @@ export const weatherDataOptions = {
     "wind_gusts_10m",
   ],
 
-  minute: [
+  minutely_15: [
     "temperature_2m",
     "relative_humidity_2m",
     "dew_point_2m",

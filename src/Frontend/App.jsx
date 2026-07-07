@@ -40,9 +40,18 @@ function App() {
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const [searchBar, setSearchBar] = useState(false);
 
-  const [recentSearch, setRecentSearch] = useState(readData("recentSearch") || []);
+  const [recentSearch, setRecentSearch] = useState(
+    readData("recentSearch") || [],
+  );
 
-  const [moreWeatherOptions, setMoreWeatherOptions] = useState(readData("moreWeatherOptions") || []);
+  const [moreWeatherOptions, setMoreWeatherOptions] = useState(
+    readData("moreWeatherOptions") || {
+      current: [],
+      minutely_15: [],
+      hourly: [],
+      daily: [],
+    },
+  );
 
   const handleDebouncedChange = useMemo(() => {
     return debounce(async (value) => {
@@ -475,11 +484,32 @@ function App() {
                               <h2>{group}</h2>
 
                               {options.map((option) => (
-                                <div key={option} onClick={() => {
-                                  setMoreWeatherOptions(prev => [...prev, option]);
-                                  console.log([...moreWeatherOptions, option]);
-                                  saveData("moreWeatherOptions", [...moreWeatherOptions, option]);
-                                }} timeFrame={group}>{option}</div>
+                                <div
+                                  key={`${group}-${option}`}
+                                  onClick={() => {
+                                    setMoreWeatherOptions((prev) => {
+                                      const safePrev = prev ?? {
+                                        current: [],
+                                        minutely_15: [],
+                                        hourly: [],
+                                        daily: [],
+                                      };
+
+                                      const updated = {
+                                        ...safePrev,
+                                        [group]: [
+                                          ...(safePrev[group] ?? []),
+                                          option,
+                                        ],
+                                      };
+
+                                      saveData("moreWeatherOptions", updated);
+                                      return updated;
+                                    });
+                                  }}
+                                >
+                                  {option}
+                                </div>
                               ))}
                             </div>
                           ),

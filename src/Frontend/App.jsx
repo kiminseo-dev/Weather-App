@@ -118,6 +118,24 @@ function App() {
     setRecentSearch(recentSearchData);
   }, []);
 
+  useEffect(() => {
+    if (!coord?.lat || !coord?.lon) return;
+    const hasOptions = Object.values(moreWeatherOptions).some(
+      (variables) => variables.length > 0,
+    );
+
+    if (!hasOptions) return;
+    async function fetchData() {
+      const data = await fetchWeatherData(
+        coord,
+        moreWeatherOptions,
+        "cachedMoreWeatherData",
+      );
+      console.log(data);
+    }
+    fetchData();
+  }, [coord, moreWeatherOptions]);
+
   const today = isToday(weatherData, date);
   const dayIndex = getDayIndex(weatherData, date);
 

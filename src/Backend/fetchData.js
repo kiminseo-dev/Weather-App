@@ -71,30 +71,35 @@ export async function fetchLocationMatches(value) {
   }
 }
 
-export async function fetchWeatherData(coord, toFetch) {
+export async function fetchWeatherData(
+  coord,
+  toFetch,
+  cacheKey = "cachedWeatherData",
+) {
   const query = Object.entries(toFetch)
-    .map(([timeFrame, variables]) => {
-      return `${timeFrame}=${variables.join(",")}`;
-    })
+    .map(([timeFrame, variables]) => `${timeFrame}=${variables.join(",")}`)
     .join("&");
 
   const apiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${coord.lat}&longitude=${coord.lon}&${query}&timezone=auto`;
 
   try {
     const response = await fetch(apiUrl);
+
     if (!response.ok) {
       throw new Error("Fetch failed");
     }
 
     const data = await response.json();
-    localStorage.setItem("cachedWeatherData", JSON.stringify(data));
+    localStorage.setItem(cacheKey, JSON.stringify(data));
+
     return {
       data,
       source: "live",
     };
   } catch (error) {
     console.log(error);
-    const cached = JSON.parse(localStorage.getItem("cachedWeatherData"));
+
+    const cached = JSON.parse(localStorage.getItem(cacheKey));
 
     if (cached) {
       return {
@@ -102,7 +107,8 @@ export async function fetchWeatherData(coord, toFetch) {
         source: "delayed",
       };
     }
-    throw new Error("No cached data available (weatherData)");
+
+    throw new Error(`No cached data available (${cacheKey})`);
   }
 }
 

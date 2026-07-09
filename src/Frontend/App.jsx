@@ -27,6 +27,7 @@ function App() {
   const [coord, setCoord] = useState({});
   const [locationName, setLocationName] = useState({});
   const [weatherData, setWeatherData] = useState({});
+  const [moreWeatherData, setMoreWeatherData] = useState({});
   const [date, setDate] = useState(null);
   const [time, setTime] = useState(null);
   const [locationList, setLocationList] = useState([]);
@@ -131,7 +132,7 @@ function App() {
         moreWeatherOptions,
         "cachedMoreWeatherData",
       );
-      console.log(data);
+      setMoreWeatherData(data.data);
     }
     fetchData();
   }, [coord, moreWeatherOptions]);
@@ -483,6 +484,17 @@ function App() {
                   }}
                 >
                   Add
+                </div>
+                <div>
+                  {Object.entries(moreWeatherOptions).map(
+                    ([timeFrame, variables]) =>
+                      variables.map((variable) => (
+                        <div key={`${timeFrame}-${variable}`}>
+                          <p>{`${timeFrame}-${variable}`}: </p>
+                          {moreWeatherData?.[timeFrame]?.[variable]}
+                        </div>
+                      )),
+                  )}
                 </div>
                 {isMoreOpen && (
                   <div

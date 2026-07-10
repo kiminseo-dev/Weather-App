@@ -21,3 +21,4 @@ export function SkeletonImage({ src, alt, width, height }) {
     </>
   );
 }
+

@@ -14,6 +14,7 @@ import {
   saveData,
   readData,
   weatherDataOptions,
+  timeFrames,
 } from "../Backend/fetchData";
 import { SkeletonImage } from "./util.jsx";
 import {
@@ -90,6 +91,26 @@ function App() {
 
     setWeatherData(fetchedWeatherData.data);
     setWeatherDataSource(fetchedWeatherData.source);
+  }
+
+  function addMoreWeatherOption(group, option) {
+    setMoreWeatherOptions((prev) => {
+      const safePrev = prev ?? {
+        current: [],
+        minutely_15: [],
+        hourly: [],
+        daily: [],
+      };
+
+      const updated = {
+        ...safePrev,
+        [group]: [...(safePrev[group] ?? []), option],
+      };
+
+      saveData("moreWeatherOptions", updated);
+      return updated;
+    });
+    setIsMoreOpen(false);
   }
 
   useEffect(() => {
@@ -511,34 +532,46 @@ function App() {
                         {Object.entries(weatherDataOptions).map(
                           ([group, options]) => (
                             <div key={group}>
-                              <h2>{group}</h2>
+                              <h2 className="font-bold">{group}</h2>
 
                               {options.map((option) => (
-                                <div
-                                  key={`${group}-${option}`}
-                                  onClick={() => {
-                                    setMoreWeatherOptions((prev) => {
-                                      const safePrev = prev ?? {
-                                        current: [],
-                                        minutely_15: [],
-                                        hourly: [],
-                                        daily: [],
-                                      };
+                                <div key={`${group}-${option}`}>
+                                  <p>{option}</p>
+                                  {group === "current" && (
+                                    <button
+                                      onClick={() =>
+                                        addMoreWeatherOption(group, option)
+                                      }
+                                    >
+                                      Add
+                                    </button>
+                                  )}
+                                  <select
+                                    className={
+                                      group === "current" ? "hidden" : ""
+                                    }
+                                    defaultValue=""
+                                    onChange={(e) => {
+                                      const TimeFrame = e.target.value;
 
-                                      const updated = {
-                                        ...safePrev,
-                                        [group]: [
-                                          ...(safePrev[group] ?? []),
-                                          option,
-                                        ],
-                                      };
+                                      addMoreWeatherOption(group, option);
+                                    }}
+                                  >
+                                    {group === "minutely_15" &&
+                                      timeFrames.minutely_15.map((time) => (
+                                        <option key={time}>{time}</option>
+                                      ))}
 
-                                      saveData("moreWeatherOptions", updated);
-                                      return updated;
-                                    });
-                                  }}
-                                >
-                                  {option}
+                                    {group === "hourly" &&
+                                      timeFrames.hourly.map((time) => (
+                                        <option key={time}>{time}</option>
+                                      ))}
+
+                                    {group === "daily" &&
+                                      timeFrames.daily.map((time) => (
+                                        <option key={time}>{time}</option>
+                                      ))}
+                                  </select>
                                 </div>
                               ))}
                             </div>

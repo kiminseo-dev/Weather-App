@@ -104,7 +104,10 @@ function App() {
 
       const updated = {
         ...safePrev,
-        [group]: [...(safePrev[group] ?? []), option],
+        [group]: [
+          option,
+          ...(safePrev[group] ?? []).filter((item) => item !== option),
+        ],
       };
 
       saveData("moreWeatherOptions", updated);
@@ -251,7 +254,12 @@ function App() {
                             lat,
                             lon,
                           },
-                          ...prev,
+                          ...prev.filter(
+                            (search) =>
+                              search.lat !== lat ||
+                              search.lon !== lon ||
+                              search.name !== name,
+                          ),
                         ]);
 
                         setSearchText("");

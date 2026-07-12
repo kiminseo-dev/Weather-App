@@ -93,7 +93,7 @@ function App() {
     setWeatherDataSource(fetchedWeatherData.source);
   }
 
-  function addMoreWeatherOption(group, option) {
+  function addMoreWeatherOption(group, option, timeFrame) {
     setMoreWeatherOptions((prev) => {
       const safePrev = prev ?? {
         current: [],
@@ -105,10 +105,15 @@ function App() {
       const updated = {
         ...safePrev,
         [group]: [
-          option,
-          ...(safePrev[group] ?? []).filter((item) => item !== option),
+          { option, timeFrame },
+          ...(safePrev[group] ?? []).filter(
+            (item) => item !== { option, timeFrame },
+          ),
         ],
       };
+
+      console.log(timeFrame);
+      console.log(updated);
 
       saveData("moreWeatherOptions", updated);
       return updated;
@@ -151,9 +156,16 @@ function App() {
 
     if (!hasOptions) return;
     async function fetchData() {
+      const simplified = Object.fromEntries(
+        Object.entries(moreWeatherOptions).map(([group, variables]) => [
+          group,
+          variables.map(({ option }) => option),
+        ]),
+      );
+
       const data = await fetchWeatherData(
         coord,
-        moreWeatherOptions,
+        simplified,
         "cachedMoreWeatherData",
       );
       setMoreWeatherData(data.data);
@@ -516,11 +528,13 @@ function App() {
                 </div>
                 <div>
                   {Object.entries(moreWeatherOptions).map(
-                    ([timeFrame, variables]) =>
+                    ([group, variables]) =>
                       variables.map((variable) => (
-                        <div key={`${timeFrame}-${variable}`}>
-                          <p>{`${timeFrame}-${variable}`}: </p>
-                          {moreWeatherData?.[timeFrame]?.[variable]}
+                        <div
+                          key={`${group}-${variable.option}-${variable.timeFrame}`}
+                        >
+                          <p>{`${group}-${variable.option}-${variable.timeFrame}`}: </p>
+                          {moreWeatherData?.[group]?.[variable.option]}
                         </div>
                       )),
                   )}
@@ -544,7 +558,7 @@ function App() {
 
                               {options.map((option) => (
                                 <div key={`${group}-${option}`}>
-                                  <p>{option}</p>
+                                  <p>{option.replaceAll("_", " ")}</p>
                                   {group === "current" && (
                                     <button
                                       onClick={() =>
@@ -560,9 +574,13 @@ function App() {
                                     }
                                     defaultValue=""
                                     onChange={(e) => {
-                                      const TimeFrame = e.target.value;
+                                      const timeFrame = e.target.value;
 
-                                      addMoreWeatherOption(group, option);
+                                      addMoreWeatherOption(
+                                        group,
+                                        option,
+                                        timeFrame,
+                                      );
                                     }}
                                   >
                                     {group === "minutely_15" &&

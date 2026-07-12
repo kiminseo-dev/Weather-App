@@ -102,18 +102,16 @@ function App() {
         daily: [],
       };
 
+      const newItem = { option, timeFrame };
       const updated = {
         ...safePrev,
         [group]: [
-          { option, timeFrame },
+          newItem,
           ...(safePrev[group] ?? []).filter(
-            (item) => item !== { option, timeFrame },
+            (item) => !(item.option === option && item.timeFrame === timeFrame),
           ),
         ],
       };
-
-      console.log(timeFrame);
-      console.log(updated);
 
       saveData("moreWeatherOptions", updated);
       return updated;
@@ -155,7 +153,7 @@ function App() {
     );
 
     if (!hasOptions) return;
-    async function fetchData() {
+    async function fetchMoreWeatherData() {
       const simplified = Object.fromEntries(
         Object.entries(moreWeatherOptions).map(([group, variables]) => [
           group,
@@ -170,7 +168,7 @@ function App() {
       );
       setMoreWeatherData(data.data);
     }
-    fetchData();
+    fetchMoreWeatherData();
   }, [coord, moreWeatherOptions]);
 
   const today = isToday(weatherData, date);
@@ -528,15 +526,33 @@ function App() {
                 </div>
                 <div>
                   {Object.entries(moreWeatherOptions).map(
-                    ([group, variables]) =>
-                      variables.map((variable) => (
-                        <div
-                          key={`${group}-${variable.option}-${variable.timeFrame}`}
-                        >
-                          <p>{`${group}-${variable.option}-${variable.timeFrame}`}: </p>
-                          {moreWeatherData?.[group]?.[variable.option]}
-                        </div>
-                      )),
+                    ([group, variables]) => (
+                      <div className={variables.length === 0 ? "hidden" : ""} key={group}>
+                        <h2 key={group}>
+                          <strong>{group}</strong>
+                        </h2>
+                        {variables.map((variable) => (
+                          <div
+                            key={`${group}-${variable.option}-${variable.timeFrame}`}
+                          >
+                            <p>
+                              {`${group}-${variable.option}-${variable.timeFrame}`}
+                              :{" "}
+                            </p>
+                            {variable.timeFrame === undefined
+                              ? moreWeatherData?.[group]?.[variable.option]
+                              : moreWeatherData?.[group]?.time
+                                ? moreWeatherData?.[group]?.[variable.option]?.[
+                                    moreWeatherData[group].time.findIndex(
+                                      (item) =>
+                                        item.includes(variable.timeFrame),
+                                    )
+                                  ]
+                                : null}
+                          </div>
+                        ))}
+                      </div>
+                    ),
                   )}
                 </div>
                 {isMoreOpen && (
@@ -575,27 +591,37 @@ function App() {
                                     defaultValue=""
                                     onChange={(e) => {
                                       const timeFrame = e.target.value;
-
-                                      addMoreWeatherOption(
-                                        group,
-                                        option,
-                                        timeFrame,
-                                      );
+                                      if (timeFrame) {
+                                        addMoreWeatherOption(
+                                          group,
+                                          option,
+                                          timeFrame,
+                                        );
+                                      }
                                     }}
                                   >
+                                    <option value="">
+                                      Select timeframe...
+                                    </option>
                                     {group === "minutely_15" &&
                                       timeFrames.minutely_15.map((time) => (
-                                        <option key={time}>{time}</option>
+                                        <option key={time} value={time}>
+                                          {time}
+                                        </option>
                                       ))}
 
                                     {group === "hourly" &&
                                       timeFrames.hourly.map((time) => (
-                                        <option key={time}>{time}</option>
+                                        <option key={time} value={time}>
+                                          {time}
+                                        </option>
                                       ))}
 
                                     {group === "daily" &&
                                       timeFrames.daily.map((time) => (
-                                        <option key={time}>{time}</option>
+                                        <option key={time} value={time}>
+                                          {time}
+                                        </option>
                                       ))}
                                   </select>
                                 </div>

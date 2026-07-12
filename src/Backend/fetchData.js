@@ -319,6 +319,19 @@ export const weatherDataOptions = {
   ],
 };
 
+const weekDates = () => {
+  const dates = [];
+
+  for (let i = 0; i < 7; i++) {
+    const date = new Date();
+    date.setDate(date.getDate() + i);
+
+    dates.push(date.toISOString().split("T")[0]);
+  }
+
+  return dates;
+};
+
 export const timeFrames = {
   minutely_15: [
     "00:00",
@@ -446,13 +459,5 @@ export const timeFrames = {
     "23:00",
   ],
 
-  daily: [
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-    "Sunday",
-  ],
+  daily: weekDates(),
 };

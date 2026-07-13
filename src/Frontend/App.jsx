@@ -171,6 +171,10 @@ function App() {
     fetchMoreWeatherData();
   }, [coord, moreWeatherOptions]);
 
+  useEffect(() => {
+    saveData("moreWeatherOptions", moreWeatherOptions)
+  }, [moreWeatherOptions])
+
   const today = isToday(weatherData, date);
   const dayIndex = getDayIndex(weatherData, date);
 
@@ -527,7 +531,10 @@ function App() {
                 <div>
                   {Object.entries(moreWeatherOptions).map(
                     ([group, variables]) => (
-                      <div className={variables.length === 0 ? "hidden" : ""} key={group}>
+                      <div
+                        className={variables.length === 0 ? "hidden" : ""}
+                        key={group}
+                      >
                         <h2 key={group}>
                           <strong>{group}</strong>
                         </h2>
@@ -539,16 +546,35 @@ function App() {
                               {`${group}-${variable.option}-${variable.timeFrame}`}
                               :{" "}
                             </p>
-                            {variable.timeFrame === undefined
-                              ? moreWeatherData?.[group]?.[variable.option]
-                              : moreWeatherData?.[group]?.time
-                                ? moreWeatherData?.[group]?.[variable.option]?.[
-                                    moreWeatherData[group].time.findIndex(
-                                      (item) =>
-                                        item.includes(variable.timeFrame),
-                                    )
-                                  ]
-                                : null}
+                            <p>
+                              {variable.timeFrame === undefined
+                                ? moreWeatherData?.[group]?.[variable.option]
+                                : moreWeatherData?.[group]?.time
+                                  ? moreWeatherData?.[group]?.[
+                                      variable.option
+                                    ]?.[
+                                      moreWeatherData[group].time.findIndex(
+                                        (item) =>
+                                          item.includes(variable.timeFrame),
+                                      )
+                                    ]
+                                  : null}
+                            </p>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setMoreWeatherOptions((prev) => ({
+                                  ...prev,
+                                  [group]: prev[group].filter(
+                                    (item) =>
+                                      item.option !== variable.option ||
+                                      item.timeFrame !== variable.timeFrame,
+                                  ),
+                                }));
+                              }}
+                            >
+                              Delete
+                            </button>
                           </div>
                         ))}
                       </div>

@@ -55,6 +55,8 @@ function App() {
     },
   );
 
+  const [searchFilter, setSearchFilter] = useState("");
+
   const handleDebouncedChange = useMemo(() => {
     return debounce(async (value) => {
       if (!value.trim()) {
@@ -172,8 +174,8 @@ function App() {
   }, [coord, moreWeatherOptions]);
 
   useEffect(() => {
-    saveData("moreWeatherOptions", moreWeatherOptions)
-  }, [moreWeatherOptions])
+    saveData("moreWeatherOptions", moreWeatherOptions);
+  }, [moreWeatherOptions]);
 
   const today = isToday(weatherData, date);
   const dayIndex = getDayIndex(weatherData, date);
@@ -593,12 +595,21 @@ function App() {
                       onClick={(e) => e.stopPropagation()}
                     >
                       <div className="overflow-y-auto h-[200px] text-white">
+                        <input onChange={(e) => {
+                          setSearchFilter(e.target.value);
+                        }} value={searchFilter} />
+                        <a href="#current-group">Current</a>
+                        <a href="#minutely_15-group">Minutely</a>
+                        <a href="#hourly-group">Hourly</a>
+                        <a href="#daily-group">Daily</a>
                         {Object.entries(weatherDataOptions).map(
                           ([group, options]) => (
                             <div key={group}>
-                              <h2 className="font-bold">{group}</h2>
+                              <h2 className="font-bold" id={`${group}-group`}>
+                                {group}
+                              </h2>
 
-                              {options.map((option) => (
+                              {options.filter(item => item.includes(searchFilter)).map((option) => (
                                 <div key={`${group}-${option}`}>
                                   <p>{option.replaceAll("_", " ")}</p>
                                   {group === "current" && (

@@ -594,78 +594,139 @@ function App() {
                       className="bg-black/50 border border-white/10 rounded-lg w-[500px] max-sm:w-[95%] overflow-hidden min-h-[120px]"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <div className="overflow-y-auto h-[200px] text-white">
-                        <input onChange={(e) => {
-                          setSearchFilter(e.target.value);
-                        }} value={searchFilter} />
-                        <a href="#current-group">Current</a>
-                        <a href="#minutely_15-group">Minutely</a>
-                        <a href="#hourly-group">Hourly</a>
-                        <a href="#daily-group">Daily</a>
-                        {Object.entries(weatherDataOptions).map(
-                          ([group, options]) => (
-                            <div key={group}>
-                              <h2 className="font-bold" id={`${group}-group`}>
-                                {group}
-                              </h2>
+                      <div className="">
+                        <div className="flex items-center gap-2 p-2">
+                          <img
+                            src={magnifiyingGlass}
+                            width="20px"
+                            height="20px"
+                            className="opacity-70"
+                          />
+                          <input
+                            onChange={(e) => {
+                              setSearchFilter(e.target.value);
+                            }}
+                            value={searchFilter}
+                            className="w-full bg-transparent border-0 focus:outline-none focus:ring-0 caret-white/70 placeholder-white/70 p-0 placeholder:text-sm text-white/70"
+                          />
+                        </div>
 
-                              {options.filter(item => item.includes(searchFilter)).map((option) => (
-                                <div key={`${group}-${option}`}>
-                                  <p>{option.replaceAll("_", " ")}</p>
-                                  {group === "current" && (
-                                    <button
-                                      onClick={() =>
-                                        addMoreWeatherOption(group, option)
-                                      }
-                                    >
-                                      Add
-                                    </button>
-                                  )}
-                                  <select
-                                    className={
-                                      group === "current" ? "hidden" : ""
-                                    }
-                                    defaultValue=""
-                                    onChange={(e) => {
-                                      const timeFrame = e.target.value;
-                                      if (timeFrame) {
-                                        addMoreWeatherOption(
-                                          group,
-                                          option,
-                                          timeFrame,
-                                        );
-                                      }
-                                    }}
-                                  >
-                                    <option value="">
-                                      Select timeframe...
-                                    </option>
-                                    {group === "minutely_15" &&
-                                      timeFrames.minutely_15.map((time) => (
-                                        <option key={time} value={time}>
-                                          {time}
-                                        </option>
-                                      ))}
+                        <div className="border border-white/10 w-[100%]"></div>
 
-                                    {group === "hourly" &&
-                                      timeFrames.hourly.map((time) => (
-                                        <option key={time} value={time}>
-                                          {time}
-                                        </option>
-                                      ))}
+                        <div className="flex gap-4 text-white/70 pt-2 pb-2 pl-2 text-">
+                          <a
+                            href="#current-group"
+                            className="hover:text-white hover:bg-white/25 rounded pl-1 pr-1"
+                          >
+                            Current
+                          </a>
+                          <a
+                            href="#minutely_15-group"
+                            className="hover:text-white hover:bg-white/25 rounded pl-1 pr-1"
+                          >
+                            Minutely
+                          </a>
+                          <a
+                            href="#hourly-group"
+                            className="hover:text-white hover:bg-white/25 rounded pl-1 pr-1"
+                          >
+                            Hourly
+                          </a>
+                          <a
+                            href="#daily-group"
+                            className="hover:text-white hover:bg-white/25 rounded pl-1 pr-1"
+                          >
+                            Daily
+                          </a>
+                        </div>
 
-                                    {group === "daily" &&
-                                      timeFrames.daily.map((time) => (
-                                        <option key={time} value={time}>
-                                          {time}
-                                        </option>
-                                      ))}
-                                  </select>
+                        <div className="overflow-y-auto h-[300px] text-white pl-2">
+                          {Object.entries(weatherDataOptions).map(
+                            ([group, options]) => (
+                              <div key={group}>
+                                <h2
+                                  className="pl-1 pb-1 text-lg text-white/90 capitalize"
+                                  id={`${group}-group`}
+                                >
+                                  {group === "minutely_15" ? "Minutely" : group}
+                                </h2>
+
+                                <div className="flex flex-col gap-1.5">
+                                  {options
+                                    .filter((item) =>
+                                      item.includes(searchFilter),
+                                    )
+                                    .map((option) => (
+                                      <div
+                                        key={`${group}-${option}`}
+                                        className="p-2.5 flex gap-1 bg-white/10 rounded-lg text-white/85"
+                                      >
+                                        <p className="capitalize">
+                                          {option.replaceAll("_", " ")}
+                                        </p>
+                                        {group === "current" && (
+                                          <button
+                                            onClick={() =>
+                                              addMoreWeatherOption(
+                                                group,
+                                                option,
+                                              )
+                                            }
+                                            className="ml-auto hover:text-white"
+                                          >
+                                            Add
+                                          </button>
+                                        )}
+                                        <select
+                                          className={`
+                                            ${group === "current" ? "hidden" : ""}
+                                            ml-auto bg-white/40 pl-1 pr-1 rounded focus:outline-none text-black
+                                          `}
+                                          defaultValue=""
+                                          onChange={(e) => {
+                                            const timeFrame = e.target.value;
+                                            if (timeFrame) {
+                                              addMoreWeatherOption(
+                                                group,
+                                                option,
+                                                timeFrame,
+                                              );
+                                            }
+                                          }}
+                                        >
+                                          <option>
+                                            Select Timeframe
+                                          </option>
+                                          {group === "minutely_15" &&
+                                            timeFrames.minutely_15.map(
+                                              (time) => (
+                                                <option key={time} value={time}>
+                                                  {time}
+                                                </option>
+                                              ),
+                                            )}
+
+                                          {group === "hourly" &&
+                                            timeFrames.hourly.map((time) => (
+                                              <option key={time} value={time}>
+                                                {time}
+                                              </option>
+                                            ))}
+
+                                          {group === "daily" &&
+                                            timeFrames.daily.map((time) => (
+                                              <option key={time} value={time}>
+                                                {time}
+                                              </option>
+                                            ))}
+                                        </select>
+                                      </div>
+                                    ))}
                                 </div>
-                              ))}
-                            </div>
-                          ),
-                        )}
+                              </div>
+                            ),
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>

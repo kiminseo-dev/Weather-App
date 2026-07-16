@@ -15,6 +15,7 @@ import {
   readData,
   weatherDataOptions,
   timeFrames,
+  units,
 } from "../Backend/fetchData";
 import { SkeletonImage } from "./util.jsx";
 import {
@@ -40,6 +41,8 @@ function App() {
 
   const [isOpen, setIsOpen] = useState(false);
   const [isMoreOpen, setIsMoreOpen] = useState(false);
+  const [isSelectOpen, setSelectOpen] = useState(false);
+  const [selectedTimeFrame, setSelectedTimeFrame] = useState("");
   const [searchBar, setSearchBar] = useState(false);
 
   const [recentSearch, setRecentSearch] = useState(
@@ -296,7 +299,7 @@ function App() {
         </nav>
         <main id="main-weather-display" className="mt-4">
           <div className="flex items-center gap-5">
-            <div className="flex flex-col gap-[2px] pl-1">
+            <div className="flex flex-col gap-[2px] pl-1 min-w-0">
               <div className="h-[20px] flex items-center">
                 {locationName.country !== undefined ? (
                   <h1 className="text-xl font-medium text-white leading-none">
@@ -309,7 +312,7 @@ function App() {
 
               <div className="h-[18px] flex items-center">
                 {locationName.city !== undefined ? (
-                  <h2 className="text-lg text-white/80 overflow-hidden leanding-none">
+                  <h2 className="text-lg text-white/80 max-w-[500px] truncate leanding-none">
                     {locationName.city}
                   </h2>
                 ) : (
@@ -330,8 +333,8 @@ function App() {
               </div>
             )}
           </div>
-          <div className="flex gap-3 pt-2 flex-1">
-            <div className="w-[70%] flex flex-col gap-3">
+          <div className="flex gap-3 pt-2 flex-1 max-sm:flex-col">
+            <div className="w-[70%] flex flex-col gap-3 max-sm:w-full">
               <div
                 id="main"
                 className="border border-white/10 p-3 bg-black/30 rounded-xl"
@@ -476,14 +479,14 @@ function App() {
                 className="bg-black/30 rounded-xl p-3 border border-white/10"
               >
                 <h2 className="text-xl font-medium text-white">
-                  7 day forecast
+                  Weekly forecast
                 </h2>
                 <div className="flex mt-2 gap-2 overflow-x-auto pb-2">
                   {weatherData.daily ? (
                     weatherData.daily.time.map((day, index) => (
                       <div
                         key={`${day}-${index}`}
-                        className={`bg-black/30 ${day === date ? "bg-black/60" : ""} rounded-lg p-3 flex flex-col items-center gap-3 ${day !== date ? "hover:bg-black/40" : ""} border border-white/10 cursor-pointer w-[150px] flex-shrink-0`}
+                        className={`bg-black/30 ${day === date ? "bg-black/60" : ""} rounded-lg p-3 flex flex-col items-center gap-3 ${day !== date ? "hover:bg-black/40" : ""} border border-white/10 cursor-pointer w-[150px] max-sm:w-[100px] flex-shrink-0`}
                         onClick={() => {
                           setDate(day);
                           console.log("hourly forecast updated");
@@ -518,71 +521,98 @@ function App() {
                 </div>
               </div>
             </div>
-            <div id="moreInfo" className="bg-black/30 rounded-xl w-[30%] p-3">
+            <div
+              id="moreInfo"
+              className="bg-black/30 rounded-xl w-[30%] p-3 flex flex-col gap-1 max-sm:w-full"
+            >
               <h2 className="text-xl font-medium text-white">Activity</h2>
-              <div>
-                <h2 className="text-lg text-white">More Info</h2>
-                <div
-                  className="cursor-pointer"
-                  onClick={() => {
-                    setIsMoreOpen(true);
-                  }}
-                >
-                  Add
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center">
+                  <h2 className="text-lg text-white">Today's Update</h2>
+                  <div
+                    className="cursor-pointer ml-auto text-white"
+                    onClick={() => {
+                      setIsMoreOpen(true);
+                    }}
+                  >
+                    Add
+                  </div>
                 </div>
-                <div>
-                  {Object.entries(moreWeatherOptions).map(
-                    ([group, variables]) => (
-                      <div
-                        className={variables.length === 0 ? "hidden" : ""}
-                        key={group}
-                      >
-                        <h2 key={group}>
-                          <strong>{group}</strong>
-                        </h2>
-                        {variables.map((variable) => (
-                          <div
-                            key={`${group}-${variable.option}-${variable.timeFrame}`}
+
+                <div className="overflow-hidden rounded-xl">
+                  <div className="bg-black/30 h-[200px] w-full overflow-y-auto p-2">
+                    {Object.entries(moreWeatherOptions).map(
+                      ([group, variables]) => (
+                        <div
+                          className={`${variables.length === 0 ? "hidden" : ""}`}
+                          key={group}
+                        >
+                          <h2
+                            key={group}
+                            className="font-bold capitalize text-white/70 p-1"
                           >
-                            <p>
-                              {`${group}-${variable.option}-${variable.timeFrame}`}
-                              :{" "}
-                            </p>
-                            <p>
-                              {variable.timeFrame === undefined
-                                ? moreWeatherData?.[group]?.[variable.option]
-                                : moreWeatherData?.[group]?.time
-                                  ? moreWeatherData?.[group]?.[
-                                      variable.option
-                                    ]?.[
-                                      moreWeatherData[group].time.findIndex(
+                            {group === "minutely_15" ? "minutely" : group}
+                          </h2>
+                          <div className="flex flex-col gap-2">
+                            {variables.map((variable) => (
+                              <div
+                                key={`${group}-${variable.option}-${variable.timeFrame}`}
+                                className="bg-black/30 rounded-xl p-2 flex items-center"
+                              >
+                                <div className="flex flex-col">
+                                  <p className="capitalize text-white/80">
+                                    {variable.option.replaceAll("_", " ")}
+                                  </p>
+                                  <p
+                                    className={`${variable.timeFrame === undefined ? "hidden" : ""} text-white/60`}
+                                  >
+                                    {`${group === "daily" ? "Date:" : "Time:"} ${variable.timeFrame}`}
+                                  </p>
+                                  <p className="text-white/90 text-lg">
+                                    {variable.timeFrame === undefined
+                                      ? `${moreWeatherData?.[group]?.[variable.option]} ${units[variable.option] ?? ""}`
+                                      : moreWeatherData?.[group]?.time
+                                        ? `${
+                                            moreWeatherData?.[group]?.[
+                                              variable.option
+                                            ]?.[
+                                              moreWeatherData[
+                                                group
+                                              ].time.findIndex((item) =>
+                                                item.includes(
+                                                  variable.timeFrame,
+                                                ),
+                                              )
+                                            ]
+                                          } ${units[variable.option] ?? ""}`
+                                        : null}
+                                  </p>
+                                </div>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setMoreWeatherOptions((prev) => ({
+                                      ...prev,
+                                      [group]: prev[group].filter(
                                         (item) =>
-                                          item.includes(variable.timeFrame),
-                                      )
-                                    ]
-                                  : null}
-                            </p>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setMoreWeatherOptions((prev) => ({
-                                  ...prev,
-                                  [group]: prev[group].filter(
-                                    (item) =>
-                                      item.option !== variable.option ||
-                                      item.timeFrame !== variable.timeFrame,
-                                  ),
-                                }));
-                              }}
-                            >
-                              Delete
-                            </button>
+                                          item.option !== variable.option ||
+                                          item.timeFrame !== variable.timeFrame,
+                                      ),
+                                    }));
+                                  }}
+                                  className="ml-auto text-red-600"
+                                >
+                                  Delete
+                                </button>
+                              </div>
+                            ))}
                           </div>
-                        ))}
-                      </div>
-                    ),
-                  )}
+                        </div>
+                      ),
+                    )}
+                  </div>
                 </div>
+
                 {isMoreOpen && (
                   <div
                     className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center"
@@ -591,7 +621,7 @@ function App() {
                     }}
                   >
                     <div
-                      className="bg-black/50 border border-white/10 rounded-lg w-[500px] max-sm:w-[95%] overflow-hidden min-h-[120px]"
+                      className="bg-black/50 border border-white/10 rounded-lg w-[500px] max-sm:w-[95%] overflow-hidden min-h-[120px] pb-2"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <div className="">
@@ -659,7 +689,7 @@ function App() {
                                     .map((option) => (
                                       <div
                                         key={`${group}-${option}`}
-                                        className="p-2.5 flex gap-1 bg-white/10 rounded-lg text-white/85"
+                                        className="p-2.5 flex items-center gap-1 bg-white/10 rounded-lg text-white/85"
                                       >
                                         <p className="capitalize">
                                           {option.replaceAll("_", " ")}
@@ -692,11 +722,10 @@ function App() {
                                                 timeFrame,
                                               );
                                             }
+                                            setSearchFilter("");
                                           }}
                                         >
-                                          <option>
-                                            Select Timeframe
-                                          </option>
+                                          <option>Select Timeframe</option>
                                           {group === "minutely_15" &&
                                             timeFrames.minutely_15.map(
                                               (time) => (
@@ -732,37 +761,43 @@ function App() {
                   </div>
                 )}
               </div>
-              <div id="recent">
+              <div id="recent" className="flex flex-col gap-1">
                 <h2 className="text-lg text-white">Recent Search</h2>
-                {recentSearch.map(({ name, lat, lon }, index) => (
-                  <div
-                    key={`${name}-${lat}-${lon}`}
-                    onClick={async () => {
-                      fetchData({ lat, lon });
-                      setCoord({ lat, lon });
-                      setLocationName({
-                        country: name.split(",")[0],
-                        city: name.split(",").slice(1).join(","),
-                      });
+                <div className="rounded-xl overflow-hidden">
+                  <div className="bg-black/40 h-[200px] w-full p-2 overflow-y-auto flex flex-col gap-2">
+                    {recentSearch.map(({ name, lat, lon }, index) => (
+                      <div
+                        key={`${name}-${lat}-${lon}`}
+                        onClick={async () => {
+                          fetchData({ lat, lon });
+                          setCoord({ lat, lon });
+                          setLocationName({
+                            country: name.split(",")[0],
+                            city: name.split(",").slice(1).join(","),
+                          });
 
-                      const dateTime = await getDateTime({ lat, lon });
-                      setDate(dateTime.date);
-                      setTime(dateTime.time);
-                    }}
-                  >
-                    <p>{name.split(",")[0]}</p>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setRecentSearch((prev) =>
-                          prev.filter((_, i) => i !== index),
-                        );
-                      }}
-                    >
-                      Delete
-                    </button>
+                          const dateTime = await getDateTime({ lat, lon });
+                          setDate(dateTime.date);
+                          setTime(dateTime.time);
+                        }}
+                        className="bg-black/30 rounded-xl p-2 flex items-center"
+                      >
+                        <p className="text-white/80">{name.split(",")[0]}</p>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setRecentSearch((prev) =>
+                              prev.filter((_, i) => i !== index),
+                            );
+                          }}
+                          className="ml-auto text-red-600"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                </div>
               </div>
             </div>
           </div>

@@ -319,6 +319,114 @@ export const weatherDataOptions = {
   ],
 };
 
+export const units = {
+  // Temperature
+  temperature_2m: "°C",
+  temperature_80m: "°C",
+  temperature_120m: "°C",
+  temperature_180m: "°C",
+
+  apparent_temperature: "°C",
+  apparent_temperature_max: "°C",
+  apparent_temperature_mean: "°C",
+  apparent_temperature_min: "°C",
+
+  dew_point_2m: "°C",
+
+  soil_temperature_0cm: "°C",
+  soil_temperature_6cm: "°C",
+  soil_temperature_18cm: "°C",
+  soil_temperature_54cm: "°C",
+
+  // Humidity
+  relative_humidity_2m: "%",
+
+  // Precipitation
+  precipitation: "mm",
+  rain: "mm",
+  showers: "mm",
+  snowfall: "cm",
+  snow_depth: "m",
+
+  precipitation_sum: "mm",
+  rain_sum: "mm",
+  showers_sum: "mm",
+  snowfall_sum: "cm",
+  precipitation_hours: "hours",
+
+  precipitation_probability_max: "%",
+  precipitation_probability_mean: "%",
+  precipitation_probability_min: "%",
+
+  // Pressure
+  pressure_msl: "hPa",
+  surface_pressure: "hPa",
+
+  // Wind speed
+  wind_speed_10m: "km/h",
+  wind_speed_80m: "km/h",
+  wind_speed_120m: "km/h",
+  wind_speed_180m: "km/h",
+
+  wind_gusts_10m: "km/h",
+  wind_gusts_10m_max: "km/h",
+
+  // Wind direction
+  wind_direction_10m: "°",
+  wind_direction_80m: "°",
+  wind_direction_120m: "°",
+  wind_direction_180m: "°",
+  wind_direction_10m_dominant: "°",
+
+  // Clouds
+  cloud_cover: "%",
+  cloud_cover_low: "%",
+  cloud_cover_mid: "%",
+  cloud_cover_high: "%",
+
+  // Visibility
+  visibility: "m",
+
+  // Radiation
+  shortwave_radiation: "W/m²",
+  direct_radiation: "W/m²",
+  direct_normal_irradiance: "W/m²",
+  diffuse_radiation: "W/m²",
+
+  shortwave_radiation_sum: "MJ/m²",
+
+  // Solar
+  sunshine_duration: "seconds",
+  daylight_duration: "seconds",
+
+  // Evaporation
+  evapotranspiration: "mm",
+  et0_fao_evapotranspiration: "mm",
+
+  // Atmosphere
+  cape: "J/kg",
+  vapour_pressure_deficit: "kPa",
+
+  // Soil moisture
+  soil_moisture_0_to_1cm: "m³/m³",
+  soil_moisture_1_to_3cm: "m³/m³",
+  soil_moisture_3_to_9cm: "m³/m³",
+  soil_moisture_9_to_27cm: "m³/m³",
+  soil_moisture_27_to_81cm: "m³/m³",
+
+  // UV
+  uv_index_max: "",
+  uv_index_clear_sky_max: "",
+
+  // Time (usually format separately)
+  sunrise: "",
+  sunset: "",
+
+  // No unit / special handling
+  weather_code: "",
+  is_day: "",
+};
+
 const weekDates = () => {
   const dates = [];
 

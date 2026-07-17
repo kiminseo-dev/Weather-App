@@ -656,6 +656,7 @@ function App() {
                             }}
                             value={searchFilter}
                             className="w-full bg-transparent border-0 focus:outline-none focus:ring-0 caret-white/70 placeholder-white/70 p-0 placeholder:text-sm text-white/70"
+                            autoFocus
                           />
                         </div>
 

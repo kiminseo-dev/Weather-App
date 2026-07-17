@@ -334,7 +334,6 @@ export const units = {
   apparent_temperature_max: "°C",
   apparent_temperature_mean: "°C",
   apparent_temperature_min: "°C",
-  
 
   dew_point_2m: "°C",
 
@@ -612,7 +611,7 @@ export function formatWeatherValue(option, value) {
     // UV index
     case "uv_index_max":
     case "uv_index_clear_sky_max":
-      return `${value}`;
+      return `${value} (${uvIndexLevel(value)})`;
 
     // Soil moisture (m³/m³ -> percentage)
     case "soil_moisture_0_to_1cm":
@@ -642,6 +641,9 @@ export function formatWeatherValue(option, value) {
     case "shortwave_radiation_sum":
       return `${value} ${units[option]}`;
 
+    case "snow_depth":
+      return `${(value * 100).toFixed(1)} cm`;
+
     // Default: normal values with units
     default:
       return `${value} ${units[option] ?? ""}`;
@@ -649,16 +651,15 @@ export function formatWeatherValue(option, value) {
 }
 
 function degreesToDirection(degrees) {
-  const directions = [
-    "N",
-    "NE",
-    "E",
-    "SE",
-    "S",
-    "SW",
-    "W",
-    "NW",
-  ];
+  const directions = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
 
   return directions[Math.round(degrees / 45) % 8];
+}
+
+function uvIndexLevel(value) {
+  if (value <= 2) return "Low";
+  if (value <= 5) return "Moderate";
+  if (value <= 7) return "High";
+  if (value <= 10) return "Very High";
+  return "Extreme";
 }

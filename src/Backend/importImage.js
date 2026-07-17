@@ -60,6 +60,8 @@ const weatherIcon = {
 
 import magnifiyingGlass from "../assets/magnifyingGlass.png"
 import logo from "../assets/logo.png"
+import plus from "../assets/plus.png"
+import bin from "../assets/bin.png"
 
 import clearSky from "../assets/Backgrounds/clearSky.jpg"
 import mainlyClearSky from "../assets/Backgrounds/mainlyClearSky.jpg"
@@ -81,4 +83,4 @@ const backgrounds = {
   rain,
 }
 
-export { weatherIcon, magnifiyingGlass, logo, backgrounds};
+export { weatherIcon, magnifiyingGlass, logo, backgrounds, plus, bin };

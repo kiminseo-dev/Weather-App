@@ -24,6 +24,8 @@ import {
   magnifiyingGlass,
   logo,
   backgrounds,
+  plus,
+  bin,
 } from "../Backend/importImage.js";
 
 function App() {
@@ -541,14 +543,14 @@ function App() {
               <div className="flex flex-col gap-1">
                 <div className="flex items-center">
                   <h2 className="text-lg text-white">Today's Update</h2>
-                  <div
-                    className="cursor-pointer ml-auto text-white"
+                  <img
+                    src={plus}
+                    width="20px"
+                    className="cursor-pointer ml-auto text-white mr-1"
                     onClick={() => {
                       setIsMoreOpen(true);
                     }}
-                  >
-                    Add
-                  </div>
+                  />
                 </div>
 
                 <div className="overflow-hidden rounded-xl">
@@ -618,8 +620,9 @@ function App() {
                                       ),
                                     }));
                                   }}
-                                  className="ml-auto text-red-600"
+                                  className="ml-auto text-red-600 flex items-center gap-1"
                                 >
+                                  <img src={bin} width="20px" height="20px" />
                                   Delete
                                 </button>
                               </div>
@@ -703,7 +706,9 @@ function App() {
                                 <div className="flex flex-col gap-1.5">
                                   {options
                                     .filter((item) =>
-                                      item.includes(searchFilter),
+                                      item.includes(
+                                        searchFilter.replace(" ", "_"),
+                                      ),
                                     )
                                     .map((option) => (
                                       <div
@@ -816,8 +821,9 @@ function App() {
                               prev.filter((_, i) => i !== index),
                             );
                           }}
-                          className="ml-auto text-red-600"
+                          className="ml-auto text-red-600 flex items-center gap-1"
                         >
+                          <img src={bin} width="20px" height="20px" />
                           Delete
                         </button>
                       </div>

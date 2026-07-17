@@ -16,6 +16,7 @@ import {
   weatherDataOptions,
   timeFrames,
   units,
+  formatWeatherValue,
 } from "../Backend/fetchData";
 import { SkeletonImage } from "./util.jsx";
 import {
@@ -59,6 +60,8 @@ function App() {
   );
 
   const [searchFilter, setSearchFilter] = useState("");
+
+  const [todaysDate, setTodaysDate] = useState("");
 
   const handleDebouncedChange = useMemo(() => {
     return debounce(async (value) => {
@@ -122,10 +125,19 @@ function App() {
       return updated;
     });
     setIsMoreOpen(false);
+    setSearchFilter("");
   }
 
   useEffect(() => {
     initData();
+  }, []);
+
+  useEffect(() => {
+    async function fetchTodaysDate() {
+      const dateTime = await getDateTime();
+      setTodaysDate(dateTime.date);
+    }
+    fetchTodaysDate();
   }, []);
 
   useEffect(() => {
@@ -570,9 +582,15 @@ function App() {
                                   </p>
                                   <p className="text-white/90 text-lg">
                                     {variable.timeFrame === undefined
-                                      ? `${moreWeatherData?.[group]?.[variable.option]} ${units[variable.option] ?? ""}`
+                                      ? formatWeatherValue(
+                                          variable.option,
+                                          moreWeatherData?.[group]?.[
+                                            variable.option
+                                          ],
+                                        )
                                       : moreWeatherData?.[group]?.time
-                                        ? `${
+                                        ? formatWeatherValue(
+                                            variable.option,
                                             moreWeatherData?.[group]?.[
                                               variable.option
                                             ]?.[
@@ -583,8 +601,8 @@ function App() {
                                                   variable.timeFrame,
                                                 ),
                                               )
-                                            ]
-                                          } ${units[variable.option] ?? ""}`
+                                            ],
+                                          )
                                         : null}
                                   </p>
                                 </div>
@@ -707,9 +725,23 @@ function App() {
                                             Add
                                           </button>
                                         )}
+                                        {group === "daily" && (
+                                          <button
+                                            onClick={() =>
+                                              addMoreWeatherOption(
+                                                group,
+                                                option,
+                                                todaysDate,
+                                              )
+                                            }
+                                            className="ml-auto hover:text-white"
+                                          >
+                                            Add
+                                          </button>
+                                        )}
                                         <select
                                           className={`
-                                            ${group === "current" ? "hidden" : ""}
+                                            ${group === "current" || group === "daily" ? "hidden" : ""}
                                             ml-auto bg-white/40 pl-1 pr-1 rounded focus:outline-none text-black
                                           `}
                                           defaultValue=""
@@ -737,13 +769,6 @@ function App() {
 
                                           {group === "hourly" &&
                                             timeFrames.hourly.map((time) => (
-                                              <option key={time} value={time}>
-                                                {time}
-                                              </option>
-                                            ))}
-
-                                          {group === "daily" &&
-                                            timeFrames.daily.map((time) => (
                                               <option key={time} value={time}>
                                                 {time}
                                               </option>

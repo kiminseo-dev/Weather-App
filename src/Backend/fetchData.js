@@ -326,10 +326,15 @@ export const units = {
   temperature_120m: "°C",
   temperature_180m: "°C",
 
+  temperature_2m_max: "°C",
+  temperature_2m_mean: "°C",
+  temperature_2m_min: "°C",
+
   apparent_temperature: "°C",
   apparent_temperature_max: "°C",
   apparent_temperature_mean: "°C",
   apparent_temperature_min: "°C",
+  
 
   dew_point_2m: "°C",
 
@@ -354,6 +359,7 @@ export const units = {
   snowfall_sum: "cm",
   precipitation_hours: "hours",
 
+  precipitation_probability: "%",
   precipitation_probability_max: "%",
   precipitation_probability_mean: "%",
   precipitation_probability_min: "%",
@@ -569,3 +575,90 @@ export const timeFrames = {
 
   daily: weekDates(),
 };
+
+export function formatWeatherValue(option, value) {
+  if (value === undefined || value === null) return null;
+
+  switch (option) {
+    // Duration: seconds -> hours/minutes
+    case "sunshine_duration":
+    case "daylight_duration": {
+      const hours = Math.floor(value / 3600);
+      const minutes = Math.floor((value % 3600) / 60);
+
+      return `${hours}h ${minutes}m`;
+    }
+
+    // Visibility: meters -> kilometers
+    case "visibility":
+      return `${(value / 1000).toFixed(1)} km`;
+
+    // Weather code -> text
+    case "weather_code":
+      return weatherCodeToText(value);
+
+    // Day/night
+    case "is_day":
+      return value === 1 ? "Day" : "Night";
+
+    // Sunrise/sunset timestamps
+    case "sunrise":
+    case "sunset":
+      return new Date(value).toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+
+    // UV index
+    case "uv_index_max":
+    case "uv_index_clear_sky_max":
+      return `${value}`;
+
+    // Soil moisture (m³/m³ -> percentage)
+    case "soil_moisture_0_to_1cm":
+    case "soil_moisture_1_to_3cm":
+    case "soil_moisture_3_to_9cm":
+    case "soil_moisture_9_to_27cm":
+    case "soil_moisture_27_to_81cm":
+      return `${(value * 100).toFixed(1)}%`;
+
+    // Wind direction degrees -> compass direction
+    case "wind_direction_10m":
+    case "wind_direction_80m":
+    case "wind_direction_120m":
+    case "wind_direction_180m":
+    case "wind_direction_10m_dominant":
+      return `${value}° ${degreesToDirection(value)}`;
+
+    // Precipitation hours
+    case "precipitation_hours":
+      return `${value} hours`;
+
+    // Radiation
+    case "shortwave_radiation":
+    case "direct_radiation":
+    case "direct_normal_irradiance":
+    case "diffuse_radiation":
+    case "shortwave_radiation_sum":
+      return `${value} ${units[option]}`;
+
+    // Default: normal values with units
+    default:
+      return `${value} ${units[option] ?? ""}`;
+  }
+}
+
+function degreesToDirection(degrees) {
+  const directions = [
+    "N",
+    "NE",
+    "E",
+    "SE",
+    "S",
+    "SW",
+    "W",
+    "NW",
+  ];
+
+  return directions[Math.round(degrees / 45) % 8];
+}

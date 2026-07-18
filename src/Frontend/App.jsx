@@ -63,8 +63,6 @@ function App() {
 
   const [searchFilter, setSearchFilter] = useState("");
 
-  const [todaysDate, setTodaysDate] = useState("");
-
   const handleDebouncedChange = useMemo(() => {
     return debounce(async (value) => {
       if (!value.trim()) {
@@ -135,14 +133,6 @@ function App() {
   }, []);
 
   useEffect(() => {
-    async function fetchTodaysDate() {
-      const dateTime = await getDateTime();
-      setTodaysDate(dateTime.date);
-    }
-    fetchTodaysDate();
-  }, []);
-
-  useEffect(() => {
     if (!coord?.lat || !coord?.lon) return;
 
     const intervalId = setInterval(async () => {
@@ -198,19 +188,28 @@ function App() {
   const dayIndex = getDayIndex(weatherData, date);
 
   const selectedDailyWeatherCode =
-    dayIndex >= 0 && weatherData.daily?.["weather_code"]?.[dayIndex] !== undefined
+    dayIndex >= 0 &&
+    weatherData.daily?.["weather_code"]?.[dayIndex] !== undefined
       ? weatherData.daily["weather_code"][dayIndex]
       : weatherData.current?.["weather_code"];
 
   return (
     <div>
       <div
-        style={{ backgroundImage: `url(${selectedDailyWeatherCode !== undefined ? weatherBackgrounds[selectedDailyWeatherCode] : weatherBackgrounds[1]})` }}
+        style={{
+          backgroundImage: `url(${selectedDailyWeatherCode !== undefined ? weatherBackgrounds[selectedDailyWeatherCode] : weatherBackgrounds[1]})`,
+        }}
         className="h-screen w-full bg-cover bg-center bg-no-repeat p-2 overflow-x-hidden"
       >
         <nav className="flex items-center gap-5 h-10 pr-2">
           <a href="#main-weather-display">
-            <img src={logo} width="50px" height="50px" className="opacity-70" alt="logo" />
+            <img
+              src={logo}
+              width="50px"
+              height="50px"
+              className="opacity-70"
+              alt="logo"
+            />
             <span className="sr-only">GitHub profile</span>
           </a>
           <div
@@ -589,7 +588,7 @@ function App() {
                                   <p
                                     className={`${variable.timeFrame === undefined ? "hidden" : ""} text-white/60`}
                                   >
-                                    {`${group === "daily" ? "Date:" : "Time:"} ${variable.timeFrame}`}
+                                    {`${group === "daily" ? "Date:" : "Time:"} ${group === "daily" ? moreWeatherData?.[group]?.time?.[variable.timeFrame] : variable.timeFrame}`}
                                   </p>
                                   <p className="text-white/90 text-lg">
                                     {variable.timeFrame === undefined
@@ -605,13 +604,15 @@ function App() {
                                             moreWeatherData?.[group]?.[
                                               variable.option
                                             ]?.[
-                                              moreWeatherData[
-                                                group
-                                              ].time.findIndex((item) =>
-                                                item.includes(
-                                                  variable.timeFrame,
-                                                ),
-                                              )
+                                              group === "daily"
+                                                ? variable.timeFrame
+                                                : moreWeatherData[
+                                                    group
+                                                  ].time.findIndex((item) =>
+                                                    item.includes(
+                                                      variable.timeFrame,
+                                                    ),
+                                                  )
                                             ],
                                           )
                                         : null}
@@ -631,7 +632,12 @@ function App() {
                                   }}
                                   className="ml-auto text-red-600 flex items-center gap-1"
                                 >
-                                  <img src={bin} width="20px" height="20px" alt="bin"/>
+                                  <img
+                                    src={bin}
+                                    width="20px"
+                                    height="20px"
+                                    alt="bin"
+                                  />
                                   Delete
                                 </button>
                               </div>
@@ -747,7 +753,7 @@ function App() {
                                               addMoreWeatherOption(
                                                 group,
                                                 option,
-                                                todaysDate,
+                                                0,
                                               )
                                             }
                                             className="ml-auto hover:text-white"
@@ -833,7 +839,7 @@ function App() {
                           }}
                           className="ml-auto text-red-600 flex items-center gap-1"
                         >
-                          <img src={bin} width="20px" height="20px" alt="bin"/>
+                          <img src={bin} width="20px" height="20px" alt="bin" />
                           Delete
                         </button>
                       </div>

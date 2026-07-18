@@ -63,24 +63,47 @@ import logo from "../assets/logo.png"
 import plus from "../assets/plus.png"
 import bin from "../assets/bin.png"
 
-import clearSky from "../assets/Backgrounds/clearSky.jpg"
-import mainlyClearSky from "../assets/Backgrounds/mainlyClearSky.jpg"
-import partlyCloudy from "../assets/Backgrounds/partlyCloudy.jpg"
-import overcast from "../assets/Backgrounds/overcast.jpg"
+import clear from "../assets/Backgrounds/clearSky.jpg"
+import cloudy from "../assets/Backgrounds/mainlyClearSky.jpg"
+import storm from "../assets/Backgrounds/overcast.jpg"
 import fog from "../assets/Backgrounds/fog.jpg"
-import drizzle from "../assets/Backgrounds/drizzle.jpg"
-import freezingDrizzle from "../assets/Backgrounds/freezingDrizzle.jpg"
 import rain from "../assets/Backgrounds/rain.jpg"
+import snow from "../assets/Backgrounds/snow.jpg"
 
-const backgrounds = {
-  clearSky,
-  mainlyClearSky,
-  partlyCloudy,
-  overcast,
-  fog,
-  drizzle,
-  freezingDrizzle,
-  rain,
-}
+const weatherBackgrounds = {
+  0: clear,
 
-export { weatherIcon, magnifiyingGlass, logo, backgrounds, plus, bin };
+  1: cloudy,
+  2: cloudy,
+  3: cloudy,
+
+  45: fog,
+  48: fog,
+
+  51: rain,
+  53: rain,
+  55: rain,
+  56: rain,
+  57: rain,
+  61: rain,
+  63: rain,
+  65: rain,
+  66: rain,
+  67: rain,
+  80: rain,
+  81: rain,
+  82: rain,
+
+  71: snow,
+  73: snow,
+  75: snow,
+  77: snow,
+  85: snow,
+  86: snow,
+
+  95: storm,
+  96: storm,
+  99: storm,
+};
+
+export { weatherIcon, magnifiyingGlass, logo, weatherBackgrounds, plus, bin };

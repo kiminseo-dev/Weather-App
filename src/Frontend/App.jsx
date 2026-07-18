@@ -23,7 +23,7 @@ import {
   weatherIcon,
   magnifiyingGlass,
   logo,
-  backgrounds,
+  weatherBackgrounds,
   plus,
   bin,
 } from "../Backend/importImage.js";
@@ -197,15 +197,21 @@ function App() {
   const today = isToday(weatherData, date);
   const dayIndex = getDayIndex(weatherData, date);
 
+  const selectedDailyWeatherCode =
+    dayIndex >= 0 && weatherData.daily?.["weather_code"]?.[dayIndex] !== undefined
+      ? weatherData.daily["weather_code"][dayIndex]
+      : weatherData.current?.["weather_code"];
+
   return (
     <div>
       <div
-        style={{ backgroundImage: `url(${backgrounds.mainlyClearSky})` }}
+        style={{ backgroundImage: `url(${selectedDailyWeatherCode !== undefined ? weatherBackgrounds[selectedDailyWeatherCode] : weatherBackgrounds[1]})` }}
         className="h-screen w-full bg-cover bg-center bg-no-repeat p-2 overflow-x-hidden"
       >
         <nav className="flex items-center gap-5 h-10 pr-2">
           <a href="#main-weather-display">
-            <img src={logo} width="50px" height="50px" className="opacity-70" />
+            <img src={logo} width="50px" height="50px" className="opacity-70" alt="logo" />
+            <span className="sr-only">GitHub profile</span>
           </a>
           <div
             onClick={() => setIsOpen(true)}
@@ -214,6 +220,7 @@ function App() {
             <img
               src={magnifiyingGlass}
               className="w-[20px] h-[20px] max-md:h-[30px] max-md:w-[30px] opacity-70"
+              alt="magnifyingGlass"
             />
             <p className="text-white/70 text-sm max-md:hidden">Search...</p>
           </div>
@@ -234,6 +241,7 @@ function App() {
                     width="20px"
                     height="20px"
                     className="opacity-70"
+                    alt="magnifyingGlass"
                   />
                   <input
                     value={searchText}
@@ -467,7 +475,7 @@ function App() {
                         .map((hour) => (
                           <div
                             key={hour.time}
-                            className="flex flex-col items-center border border-white/10 rounded bg-black/30 p-5 gap-1"
+                            className="flex flex-col items-center border border-white/10 rounded bg-black/30 p-5 gap-1 min-w-[90px] flex-shrink-0"
                           >
                             <p className="text-white/70">
                               {hour.time.split("T")[1]}
@@ -550,6 +558,7 @@ function App() {
                     onClick={() => {
                       setIsMoreOpen(true);
                     }}
+                    alt="add symbol"
                   />
                 </div>
 
@@ -622,7 +631,7 @@ function App() {
                                   }}
                                   className="ml-auto text-red-600 flex items-center gap-1"
                                 >
-                                  <img src={bin} width="20px" height="20px" />
+                                  <img src={bin} width="20px" height="20px" alt="bin"/>
                                   Delete
                                 </button>
                               </div>
@@ -652,6 +661,7 @@ function App() {
                             width="20px"
                             height="20px"
                             className="opacity-70"
+                            alt="magnifyingGlass"
                           />
                           <input
                             onChange={(e) => {
@@ -823,7 +833,7 @@ function App() {
                           }}
                           className="ml-auto text-red-600 flex items-center gap-1"
                         >
-                          <img src={bin} width="20px" height="20px" />
+                          <img src={bin} width="20px" height="20px" alt="bin"/>
                           Delete
                         </button>
                       </div>

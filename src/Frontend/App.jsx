@@ -850,6 +850,18 @@ function App() {
             </div>
           </div>
         </main>
+        <footer className="p-1">
+          <p className="text-white text-sm">
+            Weather data by{" "}
+            <a
+              href="https://open-meteo.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Open-Meteo.com
+            </a>
+          </p>
+        </footer>
       </div>
     </div>
   );
